@@ -13,7 +13,7 @@ export enum ModelAsset {
   BANDIT = "bandit.fbx",
   BOX_SMALL = "box-small.glb",
   DOGS = "Unity_SK_Animals_Dog_01.fbx",
-  GoldenRetriever = "SK_Animal_Dog_GoldenRetriever_Collar_01",
+  Coyote = "coyote.fbx",
 }
 
 export enum TextureAsset {
@@ -71,14 +71,8 @@ export class AssetManager {
   }
 
   private loadModels() {
-    this.loadModel(ModelAsset.DOGS, (group: THREE.Group) => {
-      // Pull out the dogs
-      // const goldenRetriever = group.getObjectByName(
-      //   ModelAsset.GoldenRetriever
-      // )!;
-      // goldenRetriever.removeFromParent();
-      // this.models.set(ModelAsset.GoldenRetriever, goldenRetriever);
-    });
+    this.loadModel(ModelAsset.DOGS);
+    this.loadModel(ModelAsset.Coyote);
 
     this.loadModel(ModelAsset.BANDIT);
 

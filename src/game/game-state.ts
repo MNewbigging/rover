@@ -14,6 +14,7 @@ export class GameState {
 
   private topdog: THREE.Object3D;
   private mixer: THREE.AnimationMixer;
+  private mixer2: THREE.AnimationMixer;
 
   constructor(private assetManager: AssetManager) {
     this.setupCamera();
@@ -58,6 +59,15 @@ export class GameState {
     const sittingAction = this.mixer.clipAction(sittingClip);
     sittingAction.play();
 
+    const coyote = assetManager.getModel(ModelAsset.Coyote);
+    coyote.scale.multiplyScalar(0.01);
+    coyote.position.x = 1;
+    this.scene.add(coyote);
+
+    this.mixer2 = new THREE.AnimationMixer(coyote);
+    const sittingAction2 = this.mixer2.clipAction(sittingClip);
+    sittingAction2.play();
+
     // Start game
     this.update();
   }
@@ -85,6 +95,7 @@ export class GameState {
     this.controls.update();
 
     this.mixer.update(dt);
+    this.mixer2.update(dt);
 
     this.renderPipeline.render(dt);
   };
