@@ -4,7 +4,7 @@ import { defineConfig } from "vite";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: "/vite-tester/", // replace with the repo name
+  base: "/rover/",
   assetsInclude: ["**/*.gltf"],
   publicDir: "public",
   build: {
