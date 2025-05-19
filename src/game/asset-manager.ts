@@ -6,11 +6,14 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 
 export enum AnimationAsset {
   BANDIT_IDLE = "idle.fbx",
+  DogSitting = "_POLYGON_Dog_Sitting.fbx",
 }
 
 export enum ModelAsset {
   BANDIT = "bandit.fbx",
   BOX_SMALL = "box-small.glb",
+  DOGS = "Unity_SK_Animals_Dog_01.fbx",
+  GoldenRetriever = "SK_Animal_Dog_GoldenRetriever_Collar_01",
 }
 
 export enum TextureAsset {
@@ -19,7 +22,7 @@ export enum TextureAsset {
 }
 
 export class AssetManager {
-  private models = new Map<ModelAsset, THREE.Group>();
+  private models = new Map<ModelAsset, THREE.Object3D>();
   textures = new Map<TextureAsset, THREE.Texture>();
   animations = new Map<AnimationAsset, THREE.AnimationClip>();
 
@@ -68,6 +71,15 @@ export class AssetManager {
   }
 
   private loadModels() {
+    this.loadModel(ModelAsset.DOGS, (group: THREE.Group) => {
+      // Pull out the dogs
+      // const goldenRetriever = group.getObjectByName(
+      //   ModelAsset.GoldenRetriever
+      // )!;
+      // goldenRetriever.removeFromParent();
+      // this.models.set(ModelAsset.GoldenRetriever, goldenRetriever);
+    });
+
     this.loadModel(ModelAsset.BANDIT);
 
     this.loadModel(ModelAsset.BOX_SMALL, (group: THREE.Group) => {

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { RenderPipeline } from "./render-pipeline";
-import { AssetManager, ModelAsset } from "./asset-manager";
+import { AnimationAsset, AssetManager, ModelAsset } from "./asset-manager";
 import { AnimatedObject } from "./animated-object";
 
 export class GameState {
@@ -12,7 +12,8 @@ export class GameState {
   private camera = new THREE.PerspectiveCamera();
   private controls: OrbitControls;
 
-  private animatedObject: AnimatedObject;
+  private topdog: THREE.Object3D;
+  private mixer: THREE.AnimationMixer;
 
   constructor(private assetManager: AssetManager) {
     this.setupCamera();
@@ -20,7 +21,6 @@ export class GameState {
     this.renderPipeline = new RenderPipeline(this.scene, this.camera);
 
     this.setupLights();
-    this.setupObjects();
 
     this.controls = new OrbitControls(this.camera, this.renderPipeline.canvas);
     this.controls.enableDamping = true;
@@ -28,10 +28,35 @@ export class GameState {
 
     this.scene.background = new THREE.Color("#1680AF");
 
-    this.animatedObject = new AnimatedObject(assetManager);
-    this.animatedObject.position.z = -0.5;
-    this.animatedObject.playAnimation("idle");
-    this.scene.add(this.animatedObject);
+    //this.scene.add(this.animatedObject);
+
+    const dogs = this.assetManager.getModel(ModelAsset.DOGS);
+    dogs.scale.multiplyScalar(0.01);
+
+    // Hide all but one dog
+    const mesh = dogs.children[0];
+    const Dogs = mesh.children[0];
+
+    for (let i = 1; i < Dogs.children.length; i++) {
+      Dogs.children[i].visible = false;
+    }
+
+    // Hide all attachments
+    for (let i = 1; i < mesh.children.length; i++) {
+      mesh.children[i].visible = false;
+    }
+
+    this.scene.add(dogs);
+
+    this.topdog = dogs;
+
+    this.mixer = new THREE.AnimationMixer(this.topdog);
+
+    const sittingClip = this.assetManager.animations.get(
+      AnimationAsset.DogSitting
+    )!;
+    const sittingAction = this.mixer.clipAction(sittingClip);
+    sittingAction.play();
 
     // Start game
     this.update();
@@ -52,11 +77,6 @@ export class GameState {
     this.scene.add(directLight);
   }
 
-  private setupObjects() {
-    const box = this.assetManager.getModel(ModelAsset.BOX_SMALL);
-    this.scene.add(box);
-  }
-
   private update = () => {
     requestAnimationFrame(this.update);
 
@@ -64,7 +84,7 @@ export class GameState {
 
     this.controls.update();
 
-    this.animatedObject.update(dt);
+    this.mixer.update(dt);
 
     this.renderPipeline.render(dt);
   };
