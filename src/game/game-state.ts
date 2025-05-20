@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { RenderPipeline } from "./render-pipeline";
 import { AnimationAsset, AssetManager, ModelAsset } from "./asset-manager";
-import { AnimatedObject } from "./animated-object";
+import { Dogs } from "./types";
 
 export class GameState {
   private renderPipeline: RenderPipeline;
@@ -14,7 +14,6 @@ export class GameState {
 
   private topdog: THREE.Object3D;
   private mixer: THREE.AnimationMixer;
-  private mixer2: THREE.AnimationMixer;
 
   constructor(private assetManager: AssetManager) {
     this.setupCamera();
@@ -29,27 +28,17 @@ export class GameState {
 
     this.scene.background = new THREE.Color("#1680AF");
 
-    //this.scene.add(this.animatedObject);
-
     const dogs = this.assetManager.getModel(ModelAsset.DOGS);
     dogs.scale.multiplyScalar(0.01);
 
-    // Hide all but one dog
-    const mesh = dogs.children[0];
-    const Dogs = mesh.children[0];
+    getDog(dogs, Dogs.GoldenRetrieverCollar);
 
-    for (let i = 1; i < Dogs.children.length; i++) {
-      Dogs.children[i].visible = false;
-    }
-
-    // Hide all attachments
-    for (let i = 1; i < mesh.children.length; i++) {
-      mesh.children[i].visible = false;
-    }
+    hideDogExtras(dogs);
 
     this.scene.add(dogs);
 
     this.topdog = dogs;
+    console.log("topdog", this.topdog);
 
     this.mixer = new THREE.AnimationMixer(this.topdog);
 
@@ -58,15 +47,6 @@ export class GameState {
     )!;
     const sittingAction = this.mixer.clipAction(sittingClip);
     sittingAction.play();
-
-    const coyote = assetManager.getModel(ModelAsset.Coyote);
-    coyote.scale.multiplyScalar(0.01);
-    coyote.position.x = 1;
-    this.scene.add(coyote);
-
-    this.mixer2 = new THREE.AnimationMixer(coyote);
-    const sittingAction2 = this.mixer2.clipAction(sittingClip);
-    sittingAction2.play();
 
     // Start game
     this.update();
@@ -95,8 +75,33 @@ export class GameState {
     this.controls.update();
 
     this.mixer.update(dt);
-    this.mixer2.update(dt);
 
     this.renderPipeline.render(dt);
   };
+}
+
+function getDog(topdog: THREE.Object3D, dog: Dogs) {
+  // The top-level object is a group with two children; a Group named 'mesh', and a Bone
+  const meshGroup = topdog.children[0];
+
+  // The mesh group has 18 children, all groups with Dogs being the first and attachments/other stuff in the rest
+  const dogsGroup = meshGroup.children[0];
+
+  // The dogs group has 28 skinned mesh children, each represents a dog
+
+  // Make all dogs invisible, then make the required one visible
+  dogsGroup.children.forEach((child) => (child.visible = false));
+  dogsGroup.children[dog].visible = true;
+}
+
+function hideDogExtras(topdog: THREE.Object3D) {
+  // The top-level object is a group with two children; a Group named 'mesh', and a Bone
+  const meshGroup = topdog.children[0];
+
+  // The mesh group has 18 children, all groups with Dogs being the first and attachments/other stuff in the rest
+
+  // Iterate over all but the dogs group and turn invisible
+  for (let i = 1; i < meshGroup.children.length; i++) {
+    meshGroup.children[i].visible = false;
+  }
 }
