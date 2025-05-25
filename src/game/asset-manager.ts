@@ -7,6 +7,7 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 export enum AnimationAsset {
   BANDIT_IDLE = "idle.fbx",
   DogSitting = "_POLYGON_Dog_Sitting.fbx",
+  Running = "_POLYGON_Dog_Locomotion_Running.fbx",
 }
 
 export enum ModelAsset {
