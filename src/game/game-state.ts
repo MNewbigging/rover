@@ -4,6 +4,7 @@ import { RenderPipeline } from "./render-pipeline";
 import { AnimationAsset, AssetManager, ModelAsset } from "./asset-manager";
 import { Dogs } from "./types";
 import { Dog } from "./dog";
+import { KeyboardListener } from "../listeners/keyboard-listener";
 
 export class GameState {
   private renderPipeline: RenderPipeline;
@@ -12,6 +13,7 @@ export class GameState {
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera();
   private controls: OrbitControls;
+  private keyboardListener = new KeyboardListener();
 
   private dog: Dog;
 
@@ -27,9 +29,8 @@ export class GameState {
     this.scene.background = new THREE.Color("#1680AF");
 
     // Doggo
-    this.dog = new Dog(assetManager);
+    this.dog = new Dog(assetManager, this.keyboardListener);
     this.scene.add(this.dog);
-    this.dog.playAnimation(AnimationAsset.Running);
 
     // Start game
     this.update();

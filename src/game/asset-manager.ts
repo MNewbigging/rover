@@ -8,6 +8,7 @@ export enum AnimationAsset {
   BANDIT_IDLE = "idle.fbx",
   Sitting = "_POLYGON_Dog_Sitting.fbx",
   Running = "_POLYGON_Dog_Locomotion_Running.fbx",
+  RunningJump = "_POLYGON_Dog_Locomotion_Jump_Running.fbx",
 }
 
 export enum ModelAsset {

@@ -6,13 +6,17 @@ import {
   TextureAsset,
 } from "./asset-manager";
 import { Dogs } from "./types";
+import { KeyboardListener } from "../listeners/keyboard-listener";
 
 export class Dog extends THREE.Object3D {
   private mixer: THREE.AnimationMixer;
   private actions = new Map<AnimationAsset, THREE.AnimationAction>();
   private currentAction?: THREE.AnimationAction;
 
-  constructor(private assetManager: AssetManager) {
+  constructor(
+    private assetManager: AssetManager,
+    private keyboardListener: KeyboardListener
+  ) {
     super();
 
     // Setup mesh
@@ -25,9 +29,17 @@ export class Dog extends THREE.Object3D {
     // Animations
     this.mixer = new THREE.AnimationMixer(dogs);
     this.setupAnimations();
+
+    this.playAnimation(AnimationAsset.Running);
+
+    // Listeners
+    this.mixer.addEventListener("finished", this.onFinishAnimation);
+    this.keyboardListener.on(" ", this.onPressSpace);
   }
 
-  playAnimation(name: AnimationAsset) {
+  playAnimation(name: AnimationAsset, fadeDuration: number = 0.25) {
+    if (this.currentAction?.getClip().name === name) return;
+
     // Find the new action with the given name
     const nextAction = this.actions.get(name);
     if (!nextAction) {
@@ -40,7 +52,7 @@ export class Dog extends THREE.Object3D {
     nextAction.reset().setEffectiveTimeScale(1).setEffectiveWeight(1);
 
     this.currentAction
-      ? nextAction.crossFadeFrom(this.currentAction, 0.25, false).play()
+      ? nextAction.crossFadeFrom(this.currentAction, fadeDuration, false).play()
       : nextAction.play();
 
     // Next is now current
@@ -51,23 +63,56 @@ export class Dog extends THREE.Object3D {
     this.mixer.update(dt);
   }
 
+  private onFinishAnimation = (event: { action: THREE.AnimationAction }) => {
+    const name = event.action.getClip().name;
+    console.log("finished", name);
+
+    if (name === AnimationAsset.RunningJump) {
+      this.playAnimation(AnimationAsset.Running, 0.12);
+    }
+  };
+
+  private onPressSpace = () => {
+    console.log("jump");
+
+    this.playAnimation(AnimationAsset.RunningJump);
+  };
+
   private setupAnimations() {
     this.createActionFor(AnimationAsset.Sitting);
     this.createActionFor(AnimationAsset.Running, { ignoreRootMotion: true });
+    this.createActionFor(AnimationAsset.RunningJump, {
+      ignoreRootMotion: true,
+      loopOnce: true,
+      clampWhenFinished: true,
+    });
   }
 
   private createActionFor(
     anim: AnimationAsset,
-    options?: { ignoreRootMotion: boolean }
+    options?: {
+      ignoreRootMotion?: boolean;
+      loopOnce?: boolean;
+      clampWhenFinished?: boolean;
+    }
   ) {
     const clip = this.assetManager.animations.get(anim);
     if (!clip) return;
+
+    clip.name = anim.toString();
 
     if (options?.ignoreRootMotion) {
       clip.tracks[0].values = new Float32Array();
     }
 
     const action = this.mixer.clipAction(clip);
+
+    if (options?.loopOnce) {
+      action.setLoop(THREE.LoopOnce, 1);
+    }
+    if (options?.clampWhenFinished) {
+      action.clampWhenFinished = true;
+    }
 
     this.actions.set(anim, action);
   }
