@@ -9,7 +9,7 @@ import { Dogs } from "./types";
 
 export class Dog extends THREE.Object3D {
   private mixer: THREE.AnimationMixer;
-  private actions = new Map<string, THREE.AnimationAction>();
+  private actions = new Map<AnimationAsset, THREE.AnimationAction>();
   private currentAction?: THREE.AnimationAction;
 
   constructor(private assetManager: AssetManager) {
@@ -31,7 +31,7 @@ export class Dog extends THREE.Object3D {
     this.setupAnimations();
   }
 
-  playAnimation(name: string) {
+  playAnimation(name: AnimationAsset) {
     // Find the new action with the given name
     const nextAction = this.actions.get(name);
     if (!nextAction) {
@@ -56,11 +56,16 @@ export class Dog extends THREE.Object3D {
   }
 
   private setupAnimations() {
-    const sittingClip = this.assetManager.animations.get(
-      AnimationAsset.DogSitting
-    )!;
-    const sittingAction = this.mixer.clipAction(sittingClip);
-    this.actions.set("sitting", sittingAction);
+    this.createActionFor(AnimationAsset.Sitting);
+  }
+
+  private createActionFor(anim: AnimationAsset) {
+    const clip = this.assetManager.animations.get(anim);
+    if (!clip) return;
+
+    const action = this.mixer.clipAction(clip);
+
+    this.actions.set(anim, action);
   }
 }
 
