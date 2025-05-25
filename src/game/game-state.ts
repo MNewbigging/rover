@@ -29,7 +29,7 @@ export class GameState {
     // Doggo
     this.dog = new Dog(assetManager);
     this.scene.add(this.dog);
-    this.dog.playAnimation(AnimationAsset.Sitting);
+    this.dog.playAnimation(AnimationAsset.Running);
 
     // Start game
     this.update();

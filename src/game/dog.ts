@@ -25,10 +25,6 @@ export class Dog extends THREE.Object3D {
     // Animations
     this.mixer = new THREE.AnimationMixer(dogs);
     this.setupAnimations();
-
-    // Animations
-    this.mixer = new THREE.AnimationMixer(dogs);
-    this.setupAnimations();
   }
 
   playAnimation(name: AnimationAsset) {
@@ -57,11 +53,19 @@ export class Dog extends THREE.Object3D {
 
   private setupAnimations() {
     this.createActionFor(AnimationAsset.Sitting);
+    this.createActionFor(AnimationAsset.Running, { ignoreRootMotion: true });
   }
 
-  private createActionFor(anim: AnimationAsset) {
+  private createActionFor(
+    anim: AnimationAsset,
+    options?: { ignoreRootMotion: boolean }
+  ) {
     const clip = this.assetManager.animations.get(anim);
     if (!clip) return;
+
+    if (options?.ignoreRootMotion) {
+      clip.tracks[0].values = new Float32Array();
+    }
 
     const action = this.mixer.clipAction(clip);
 
