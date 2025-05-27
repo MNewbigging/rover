@@ -30,7 +30,7 @@ export class Dog extends THREE.Object3D {
     this.mixer = new THREE.AnimationMixer(dogs);
     this.setupAnimations();
 
-    this.playAnimation(AnimationAsset.Running);
+    this.playAnimation(AnimationAsset.Falling);
 
     // Listeners
     this.mixer.addEventListener("finished", this.onFinishAnimation);
@@ -85,6 +85,9 @@ export class Dog extends THREE.Object3D {
       ignoreRootMotion: true,
       loopOnce: true,
       clampWhenFinished: true,
+    });
+    this.createActionFor(AnimationAsset.Falling, {
+      ignoreRootMotion: true,
     });
   }
 
