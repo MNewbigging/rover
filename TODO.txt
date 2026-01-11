@@ -24,6 +24,17 @@ Phase 5: Scene design
 Phase 6: First person?
 - move around the scene, dog follows you? 
 
+
+
+
+
+
+
+Misc improvements:
+- pause when window loses focus, resume on regain focus
+
+
+
 Misc tidy:
 - dog-builder class to handle the high level setup of the model (see functions in Dog.ts outside Dog class)
 - use simpler event listener

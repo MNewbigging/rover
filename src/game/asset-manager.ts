@@ -5,7 +5,6 @@ import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 
 export enum AnimationAsset {
-  BANDIT_IDLE = "idle.fbx",
   Sitting = "_POLYGON_Dog_Sitting.fbx",
   Running = "_POLYGON_Dog_Locomotion_Running.fbx",
   RunningJump = "_POLYGON_Dog_Locomotion_Jump_Running.fbx",
@@ -13,13 +12,10 @@ export enum AnimationAsset {
 }
 
 export enum ModelAsset {
-  BANDIT = "bandit.fbx",
-  BOX_SMALL = "box-small.glb",
   DOGS = "Unity_SK_Animals_Dog_01.fbx",
 }
 
 export enum TextureAsset {
-  BANDIT = "bandit-texture.png",
   HDR = "orchard_cartoony.hdr",
 }
 
@@ -74,24 +70,9 @@ export class AssetManager {
 
   private loadModels() {
     this.loadModel(ModelAsset.DOGS);
-
-    this.loadModel(ModelAsset.BANDIT);
-
-    this.loadModel(ModelAsset.BOX_SMALL, (group: THREE.Group) => {
-      group.traverse((child: THREE.Object3D) => {
-        if (child instanceof THREE.Mesh) {
-          child.material.metalness = 0; // kenney assets require this to render correctly
-        }
-      });
-    });
   }
 
   private loadTextures() {
-    this.loadTexture(
-      TextureAsset.BANDIT,
-      (texture) => (texture.colorSpace = THREE.SRGBColorSpace)
-    );
-
     this.loadTexture(
       TextureAsset.HDR,
       (texture) => (texture.mapping = THREE.EquirectangularReflectionMapping)
