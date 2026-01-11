@@ -64,8 +64,8 @@ export class GameState {
     this.ball.position.z += 0.3; // just in front of dog TODO do this automagically somehow?
 
     // Listeners
-    window.addEventListener("pointerdown", this.onMouseDown);
-    window.addEventListener("pointerup", this.onMouseUp);
+    //window.addEventListener("pointerdown", this.onMouseDown);
+    //window.addEventListener("pointerup", this.onMouseUp);
 
     // Start game
     this.update();
@@ -95,6 +95,8 @@ export class GameState {
 
     this.movePlayer(dt);
 
+    this.highlightBall();
+
     this.renderPipeline.render(dt);
   };
 
@@ -111,6 +113,20 @@ export class GameState {
 
     this.controls.moveForward(direction.z * this.moveSpeed * dt);
     this.controls.moveRight(direction.x * this.moveSpeed * dt);
+  }
+
+  private highlightBall() {
+    if (!this.ball.restingOnGround) return;
+
+    this.renderPipeline.clearOutlines();
+
+    const ndc = new THREE.Vector2(0); // always in the middle since it's fps controls
+    this.raycaster.setFromCamera(ndc, this.camera);
+
+    const intersections = this.raycaster.intersectObject(this.ball);
+    if (intersections.length) {
+      this.renderPipeline.outlineObject(this.ball);
+    }
   }
 
   private onMouseDown = (e: MouseEvent) => {
