@@ -16,10 +16,12 @@ export enum AnimationAsset {
 
 export enum ModelAsset {
   DOGS = "Unity_SK_Animals_Dog_01.fbx",
+  Ball = "SM_Prop_Ball_03.fbx",
 }
 
 export enum TextureAsset {
   HDR = "orchard_cartoony.hdr",
+  Dog = "PolygonDog_01.png",
 }
 
 export class AssetManager {
@@ -73,12 +75,18 @@ export class AssetManager {
 
   private loadModels() {
     this.loadModel(ModelAsset.DOGS);
+    this.loadModel(ModelAsset.Ball);
   }
 
   private loadTextures() {
     this.loadTexture(
       TextureAsset.HDR,
       (texture) => (texture.mapping = THREE.EquirectangularReflectionMapping)
+    );
+
+    this.loadTexture(
+      TextureAsset.Dog,
+      (texture) => (texture.colorSpace = THREE.SRGBColorSpace)
     );
   }
 

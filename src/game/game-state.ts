@@ -4,12 +4,14 @@ import { RenderPipeline } from "./render-pipeline";
 import { AssetManager } from "./asset-manager";
 import { Dog } from "./dog";
 import { KeyboardListener } from "../listeners/keyboard-listener";
+import { Ball } from "./ball";
 
 /**
  * The idea for this game:
  * - Scene shows a dog in a garden/park/green space
  * - Player must throw a ball for the dog
  * - Dog goes to get the ball
+ * - In first person
  */
 export class GameState {
   private renderPipeline: RenderPipeline;
@@ -26,6 +28,7 @@ export class GameState {
 
   private dog: Dog;
   private ground: THREE.Mesh;
+  private ball: Ball;
 
   constructor(private assetManager: AssetManager) {
     this.setupCamera();
@@ -53,6 +56,10 @@ export class GameState {
     // Doggo
     this.dog = new Dog(assetManager, this.camera);
     this.scene.add(this.dog);
+
+    // Ball
+    this.ball = new Ball(assetManager);
+    this.scene.add(this.ball);
 
     // Listeners
     window.addEventListener("pointerdown", this.onMouseDown);
