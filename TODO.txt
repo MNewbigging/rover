@@ -1,11 +1,34 @@
-- remove render pipeline; not needed as I'm not highlighting anything
+Phase 1: Dog moves where you click
+- Raycast on click 
+- Move dog there and stop
+- Face the right way 
+- Move through correct animations
+
+Phase 2: Dog returns to start after moving to click pos
+- Turn to face start point
+- Move to start point 
+- Stop and sit down
+
+Phase 3: Ball appears where you click
+- Dog picks up ball & returns with it
+- When reaching start, drops the ball
+
+Phase 4: Ball physics
+- use a physics library
+- dog waits a short time then runs after the ball 
+
+Phase 5: Scene design
+- grass shader? 
+- something to mark start point
+
+Phase 6: First person?
+- move around the scene, dog follows you? 
+
+Misc tidy:
 - dog-builder class to handle the high level setup of the model (see functions in Dog.ts outside Dog class)
+- use simpler event listener
+- remove render pipeline if not needed come phase 6
 
 
 
 
-- ball physics
-- dog holding ball
-
-- scene design
-- grass shader

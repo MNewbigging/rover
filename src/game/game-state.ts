@@ -18,7 +18,10 @@ export class GameState {
   private camera = new THREE.PerspectiveCamera();
   private controls: OrbitControls;
 
+  private raycaster = new THREE.Raycaster();
+
   private dog: Dog;
+  private ground: THREE.Mesh;
 
   constructor(private assetManager: AssetManager) {
     this.setupCamera();
@@ -38,10 +41,14 @@ export class GameState {
     );
     ground.rotateX(-Math.PI / 2);
     this.scene.add(ground);
+    this.ground = ground;
 
     // Doggo
     this.dog = new Dog(assetManager);
     this.scene.add(this.dog);
+
+    // Listeners
+    window.addEventListener("click", this.onClick);
 
     // Start game
     this.update();
@@ -72,5 +79,20 @@ export class GameState {
     this.dog.update(dt);
 
     this.renderPipeline.render(dt);
+  };
+
+  private onClick = (e: MouseEvent) => {
+    // Get ndc
+    const ndc = new THREE.Vector2();
+    ndc.x = (e.clientX / window.innerWidth) * 2 - 1;
+    ndc.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+    // Raycast against ground
+    this.raycaster.setFromCamera(ndc, this.camera);
+    const intersections = this.raycaster.intersectObject(this.ground);
+    if (!intersections.length) return;
+
+    // Get clicked position
+    const pos = intersections[0].point;
   };
 }
