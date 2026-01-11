@@ -28,6 +28,14 @@ export class GameState {
 
     this.scene.background = new THREE.Color("#1680AF");
 
+    // Scene
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(10, 10),
+      new THREE.MeshBasicMaterial({ color: "green" })
+    );
+    ground.rotateX(-Math.PI / 2);
+    this.scene.add(ground);
+
     // Doggo
     this.dog = new Dog(assetManager, this.keyboardListener);
     this.scene.add(this.dog);
