@@ -16,16 +16,15 @@ import { Ball } from "./ball";
 export class GameState {
   private renderPipeline: RenderPipeline;
   private clock = new THREE.Clock();
-
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera();
   private controls: PointerLockControls;
   private keyboardListener = new KeyboardListener();
-
   private raycaster = new THREE.Raycaster();
 
   private moveSpeed = 2;
-
+  private highlightingBall = false;
+  private holdingBall = false;
   private dog: Dog;
   private ground: THREE.Mesh;
   private ball: Ball;
@@ -64,6 +63,7 @@ export class GameState {
     this.ball.position.z += 0.3; // just in front of dog TODO do this automagically somehow?
 
     // Listeners
+    window.addEventListener("click", this.onClick);
     //window.addEventListener("pointerdown", this.onMouseDown);
     //window.addEventListener("pointerup", this.onMouseUp);
 
@@ -119,6 +119,7 @@ export class GameState {
     if (!this.ball.restingOnGround) return;
 
     this.renderPipeline.clearOutlines();
+    this.highlightingBall = false;
 
     const ndc = new THREE.Vector2(0); // always in the middle since it's fps controls
     this.raycaster.setFromCamera(ndc, this.camera);
@@ -126,8 +127,19 @@ export class GameState {
     const intersections = this.raycaster.intersectObject(this.ball);
     if (intersections.length) {
       this.renderPipeline.outlineObject(this.ball);
+      this.highlightingBall = true;
     }
   }
+
+  private onClick = (e: MouseEvent) => {
+    if (e.button !== 0) return;
+    if (!this.highlightingBall) return;
+
+    this.camera.add(this.ball);
+    this.ball.position.z -= 1;
+    this.ball.position.x += 0.25;
+    this.holdingBall = true;
+  };
 
   private onMouseDown = (e: MouseEvent) => {
     if (e.button !== 0) return;
