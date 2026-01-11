@@ -48,7 +48,8 @@ export class GameState {
     this.scene.add(this.dog);
 
     // Listeners
-    window.addEventListener("click", this.onClick);
+    window.addEventListener("pointerdown", this.onMouseDown);
+    window.addEventListener("pointerup", this.onMouseUp);
 
     // Start game
     this.update();
@@ -81,7 +82,14 @@ export class GameState {
     this.renderPipeline.render(dt);
   };
 
-  private onClick = (e: MouseEvent) => {
+  private onMouseDown = (e: MouseEvent) => {
+    if (e.button !== 0) return;
+    this.dog.standUp();
+  };
+
+  private onMouseUp = (e: MouseEvent) => {
+    if (e.button !== 0) return;
+
     // Get ndc
     const ndc = new THREE.Vector2();
     ndc.x = (e.clientX / window.innerWidth) * 2 - 1;

@@ -6,6 +6,9 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 
 export enum AnimationAsset {
   Sitting = "_POLYGON_Dog_Sitting.fbx",
+  Standing = "_POLYGON_Dog_Locomotion_Standing.fbx",
+  StandToSit = "_POLYGON_Dog_Transition_Stand_ToSit.fbx",
+  SitToStand = "_POLYGON_Dog_Transition_Sit_ToStand.fbx",
   Running = "_POLYGON_Dog_Locomotion_Running.fbx",
   RunningJump = "_POLYGON_Dog_Locomotion_Jump_Running.fbx",
   Falling = "_POLYGON_Dog_Locomotion_Falling.fbx",

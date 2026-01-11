@@ -23,12 +23,17 @@ export class Dog extends THREE.Object3D {
     // Animations
     this.mixer = new THREE.AnimationMixer(dogs);
     this.setupAnimations();
+    this.mixer.addEventListener("finished", this.onFinishAnimation);
 
     this.playAnimation(AnimationAsset.Sitting);
   }
 
+  isCurrentAnimation(name: AnimationAsset) {
+    return this.currentAction?.getClip().name === name;
+  }
+
   playAnimation(name: AnimationAsset, fadeDuration: number = 0.25) {
-    if (this.currentAction?.getClip().name === name) return;
+    if (this.isCurrentAnimation(name)) return;
 
     // Find the new action with the given name
     const nextAction = this.actions.get(name);
@@ -49,12 +54,17 @@ export class Dog extends THREE.Object3D {
     this.currentAction = nextAction;
   }
 
+  standUp() {
+    if (this.isCurrentAnimation(AnimationAsset.Sitting)) {
+      this.playAnimation(AnimationAsset.SitToStand);
+    }
+  }
+
   moveTo(pos: THREE.Vector3) {
     // One at a time, can't interrupt
     if (this.targetPos) return;
 
     this.targetPos = pos;
-    console.log("new target");
   }
 
   update(dt: number) {
@@ -62,7 +72,6 @@ export class Dog extends THREE.Object3D {
 
     // Move towards target
     if (this.targetPos) {
-      console.log("moving to target");
       const direction = this.targetPos.clone().sub(this.position).normalize();
       this.position.add(direction.multiplyScalar(this.moveSpeed * dt));
 
@@ -73,6 +82,14 @@ export class Dog extends THREE.Object3D {
     }
   }
 
+  private onFinishAnimation = (event: { action: THREE.AnimationAction }) => {
+    const name = event.action.getClip().name;
+
+    if (name === AnimationAsset.SitToStand) {
+      this.playAnimation(AnimationAsset.Standing);
+    }
+  };
+
   private setupAnimations() {
     this.createActionFor(AnimationAsset.Sitting);
     this.createActionFor(AnimationAsset.Running, { ignoreRootMotion: true });
@@ -81,8 +98,10 @@ export class Dog extends THREE.Object3D {
       loopOnce: true,
       clampWhenFinished: true,
     });
-    this.createActionFor(AnimationAsset.Falling, {
-      ignoreRootMotion: true,
+    this.createActionFor(AnimationAsset.Standing);
+    this.createActionFor(AnimationAsset.SitToStand, {
+      loopOnce: true,
+      clampWhenFinished: true,
     });
   }
 
