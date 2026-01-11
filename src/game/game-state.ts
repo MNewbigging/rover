@@ -44,7 +44,7 @@ export class GameState {
     this.ground = ground;
 
     // Doggo
-    this.dog = new Dog(assetManager);
+    this.dog = new Dog(assetManager, this.camera);
     this.scene.add(this.dog);
 
     // Listeners
@@ -102,6 +102,6 @@ export class GameState {
 
     // Get clicked position
     const pos = intersections[0].point;
-    this.dog.moveTo(pos);
+    this.dog.fetch(pos);
   };
 }

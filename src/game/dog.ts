@@ -7,10 +7,16 @@ export class Dog extends THREE.Object3D {
   private actions = new Map<AnimationAsset, THREE.AnimationAction>();
   private currentAction?: THREE.AnimationAction;
 
-  private targetPos?: THREE.Vector3;
+  private startPos = new THREE.Vector3(); // for now
+  private ballPos?: THREE.Vector3;
   private moveSpeed = 1;
 
-  constructor(private assetManager: AssetManager) {
+  private hasBall = false;
+
+  constructor(
+    private assetManager: AssetManager,
+    private camera: THREE.PerspectiveCamera
+  ) {
     super();
 
     // Setup mesh
@@ -60,11 +66,10 @@ export class Dog extends THREE.Object3D {
     }
   }
 
-  moveTo(pos: THREE.Vector3) {
-    // One at a time, can't interrupt
-    if (this.targetPos) return;
+  fetch(ballPos: THREE.Vector3) {
+    if (this.ballPos) return;
 
-    this.targetPos = pos;
+    this.ballPos = ballPos;
 
     // If already standing, start running
     if (this.isCurrentAnimation(AnimationAsset.Standing)) {
@@ -80,12 +85,24 @@ export class Dog extends THREE.Object3D {
   }
 
   private moveTowardsTarget(dt: number) {
-    if (!this.targetPos) return;
+    // Waiting at start point for ball to be thrown
+    if (!this.hasBall && !this.ballPos) return; // nothing to move towards
 
+    // Fetching the ball
+    if (!this.hasBall && this.ballPos) {
+      this.moveTowardsBall(this.ballPos, dt);
+      return;
+    }
+
+    // Returning to start point with the ball
+    if (this.hasBall) this.moveToStartPos(dt);
+  }
+
+  private moveTowardsBall(ballPos: THREE.Vector3, dt: number) {
     // Can't move when transitioning to a stand
     if (this.isCurrentAnimation(AnimationAsset.SitToStand)) return;
 
-    const direction = this.targetPos.clone().sub(this.position).normalize();
+    const direction = ballPos.clone().sub(this.position).normalize();
     const nextPos = this.position
       .clone()
       .add(direction.multiplyScalar(this.moveSpeed * dt));
@@ -94,9 +111,27 @@ export class Dog extends THREE.Object3D {
     this.lookAt(nextPos);
     this.position.copy(nextPos);
 
-    // If close enough, stop
-    if (this.position.distanceTo(this.targetPos) < 0.01) {
-      this.targetPos = undefined;
+    // If close enough, pick up the ball
+    if (this.position.distanceTo(ballPos) < 0.01) {
+      this.ballPos = undefined; // because it's in the dog's mouth!
+      this.hasBall = true;
+    }
+  }
+
+  private moveToStartPos(dt: number) {
+    const direction = this.startPos.clone().sub(this.position).normalize();
+    const nextPos = this.position
+      .clone()
+      .add(direction.multiplyScalar(this.moveSpeed * dt));
+
+    this.lookAt(nextPos);
+    this.position.copy(nextPos);
+
+    // If close enough, drop the ball and sit down
+    if (this.position.distanceTo(this.startPos) < 0.01) {
+      this.hasBall = false;
+      this.playAnimation(AnimationAsset.StandToSit);
+      // TODO face player
     }
   }
 
@@ -106,8 +141,12 @@ export class Dog extends THREE.Object3D {
     if (name === AnimationAsset.SitToStand) {
       // If there is a target already then start running
       this.playAnimation(
-        this.targetPos ? AnimationAsset.Running : AnimationAsset.Standing
+        this.ballPos ? AnimationAsset.Running : AnimationAsset.Standing
       );
+    }
+
+    if (name === AnimationAsset.StandToSit) {
+      this.playAnimation(AnimationAsset.Sitting);
     }
   };
 
@@ -121,6 +160,10 @@ export class Dog extends THREE.Object3D {
     });
     this.createActionFor(AnimationAsset.Standing);
     this.createActionFor(AnimationAsset.SitToStand, {
+      loopOnce: true,
+      clampWhenFinished: true,
+    });
+    this.createActionFor(AnimationAsset.StandToSit, {
       loopOnce: true,
       clampWhenFinished: true,
     });
