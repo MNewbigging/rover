@@ -65,20 +65,32 @@ export class Dog extends THREE.Object3D {
     if (this.targetPos) return;
 
     this.targetPos = pos;
+
+    // If already standing, start running
+    if (this.isCurrentAnimation(AnimationAsset.Standing)) {
+      this.playAnimation(AnimationAsset.Running);
+    }
   }
 
   update(dt: number) {
     this.mixer.update(dt);
 
     // Move towards target
-    if (this.targetPos) {
-      const direction = this.targetPos.clone().sub(this.position).normalize();
-      this.position.add(direction.multiplyScalar(this.moveSpeed * dt));
+    this.moveTowardsTarget(dt);
+  }
 
-      // If close enough, stop
-      if (this.position.distanceTo(this.targetPos) < 0.01) {
-        this.targetPos = undefined;
-      }
+  private moveTowardsTarget(dt: number) {
+    if (!this.targetPos) return;
+
+    // Can't move when transitioning to a stand
+    if (this.isCurrentAnimation(AnimationAsset.SitToStand)) return;
+
+    const direction = this.targetPos.clone().sub(this.position).normalize();
+    this.position.add(direction.multiplyScalar(this.moveSpeed * dt));
+
+    // If close enough, stop
+    if (this.position.distanceTo(this.targetPos) < 0.01) {
+      this.targetPos = undefined;
     }
   }
 
@@ -86,7 +98,10 @@ export class Dog extends THREE.Object3D {
     const name = event.action.getClip().name;
 
     if (name === AnimationAsset.SitToStand) {
-      this.playAnimation(AnimationAsset.Standing);
+      // If there is a target already then start running
+      this.playAnimation(
+        this.targetPos ? AnimationAsset.Running : AnimationAsset.Standing
+      );
     }
   };
 
