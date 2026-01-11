@@ -60,6 +60,8 @@ export class GameState {
     // Ball
     this.ball = new Ball(assetManager);
     this.scene.add(this.ball);
+    this.ball.restOnGround();
+    this.ball.position.z += 0.3; // just in front of dog TODO do this automagically somehow?
 
     // Listeners
     window.addEventListener("pointerdown", this.onMouseDown);

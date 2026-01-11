@@ -10,4 +10,10 @@ export class Ball extends THREE.Object3D {
     ball.scale.multiplyScalar(0.01);
     this.add(ball);
   }
+
+  restOnGround() {
+    const bounds = new THREE.Box3().setFromObject(this);
+    const size = bounds.getSize(new THREE.Vector3());
+    this.position.y += size.y / 2;
+  }
 }
