@@ -9,6 +9,11 @@ Phase 2: Dog returns to start after moving to click pos
 - Move to start point 
 - Stop and sit down
 
+Phase 3: First person controls
+- WSAD to move around
+- Locked mouse to look around
+
+
 Phase 3: Ball appears where you click
 - Dog picks up ball & returns with it
 - When reaching start, drops the ball

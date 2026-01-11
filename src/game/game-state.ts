@@ -1,8 +1,9 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls";
 import { RenderPipeline } from "./render-pipeline";
 import { AssetManager } from "./asset-manager";
 import { Dog } from "./dog";
+import { KeyboardListener } from "../listeners/keyboard-listener";
 
 /**
  * The idea for this game:
@@ -16,9 +17,12 @@ export class GameState {
 
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera();
-  private controls: OrbitControls;
+  private controls: PointerLockControls;
+  private keyboardListener = new KeyboardListener();
 
   private raycaster = new THREE.Raycaster();
+
+  private moveSpeed = 2;
 
   private dog: Dog;
   private ground: THREE.Mesh;
@@ -28,9 +32,12 @@ export class GameState {
     this.renderPipeline = new RenderPipeline(this.scene, this.camera);
     this.setupLights();
 
-    this.controls = new OrbitControls(this.camera, this.renderPipeline.canvas);
-    this.controls.enableDamping = true;
-    this.controls.target.set(0, 1, 0);
+    this.controls = new PointerLockControls(
+      this.camera,
+      this.renderPipeline.canvas
+    );
+    this.scene.add(this.controls.getObject());
+    this.controls.lock();
 
     this.scene.background = new THREE.Color("#1680AF");
 
@@ -75,12 +82,27 @@ export class GameState {
 
     const dt = this.clock.getDelta();
 
-    this.controls.update();
-
     this.dog.update(dt);
+
+    this.movePlayer(dt);
 
     this.renderPipeline.render(dt);
   };
+
+  private movePlayer(dt: number) {
+    const moveForward = this.keyboardListener.isKeyPressed("w");
+    const moveBackward = this.keyboardListener.isKeyPressed("s");
+    const moveLeft = this.keyboardListener.isKeyPressed("a");
+    const moveRight = this.keyboardListener.isKeyPressed("d");
+
+    const direction = new THREE.Vector3();
+    direction.z = Number(moveForward) - Number(moveBackward);
+    direction.x = Number(moveRight) - Number(moveLeft);
+    direction.normalize(); // avoid moving faster on diagonals
+
+    this.controls.moveForward(direction.z * this.moveSpeed * dt);
+    this.controls.moveRight(direction.x * this.moveSpeed * dt);
+  }
 
   private onMouseDown = (e: MouseEvent) => {
     if (e.button !== 0) return;
