@@ -23,6 +23,7 @@ Phase 5: Scene design
 
 Phase 6: Dog behaviour
 - More animations
+- Bending/turning animation logic
 
 Phase 7: First person?
 - move around the scene, dog follows you? 

@@ -86,7 +86,13 @@ export class Dog extends THREE.Object3D {
     if (this.isCurrentAnimation(AnimationAsset.SitToStand)) return;
 
     const direction = this.targetPos.clone().sub(this.position).normalize();
-    this.position.add(direction.multiplyScalar(this.moveSpeed * dt));
+    const nextPos = this.position
+      .clone()
+      .add(direction.multiplyScalar(this.moveSpeed * dt));
+
+    // For now until I get turning/bending implemented
+    this.lookAt(nextPos);
+    this.position.copy(nextPos);
 
     // If close enough, stop
     if (this.position.distanceTo(this.targetPos) < 0.01) {
