@@ -7,6 +7,9 @@ export class Dog extends THREE.Object3D {
   private actions = new Map<AnimationAsset, THREE.AnimationAction>();
   private currentAction?: THREE.AnimationAction;
 
+  private targetPos?: THREE.Vector3;
+  private moveSpeed = 1;
+
   constructor(private assetManager: AssetManager) {
     super();
 
@@ -46,8 +49,28 @@ export class Dog extends THREE.Object3D {
     this.currentAction = nextAction;
   }
 
+  moveTo(pos: THREE.Vector3) {
+    // One at a time, can't interrupt
+    if (this.targetPos) return;
+
+    this.targetPos = pos;
+    console.log("new target");
+  }
+
   update(dt: number) {
     this.mixer.update(dt);
+
+    // Move towards target
+    if (this.targetPos) {
+      console.log("moving to target");
+      const direction = this.targetPos.clone().sub(this.position).normalize();
+      this.position.add(direction.multiplyScalar(this.moveSpeed * dt));
+
+      // If close enough, stop
+      if (this.position.distanceTo(this.targetPos) < 0.01) {
+        this.targetPos = undefined;
+      }
+    }
   }
 
   private setupAnimations() {

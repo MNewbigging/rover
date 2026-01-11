@@ -94,5 +94,6 @@ export class GameState {
 
     // Get clicked position
     const pos = intersections[0].point;
+    this.dog.moveTo(pos);
   };
 }
