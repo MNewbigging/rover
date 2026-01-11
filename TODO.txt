@@ -1,0 +1,11 @@
+- remove render pipeline; not needed as I'm not highlighting anything
+- dog-builder class to handle the high level setup of the model (see functions in Dog.ts outside Dog class)
+
+
+
+
+- ball physics
+- dog holding ball
+
+- scene design
+- grass shader

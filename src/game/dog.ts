@@ -1,22 +1,13 @@
 import * as THREE from "three";
-import {
-  AnimationAsset,
-  AssetManager,
-  ModelAsset,
-  TextureAsset,
-} from "./asset-manager";
+import { AnimationAsset, AssetManager, ModelAsset } from "./asset-manager";
 import { Dogs } from "./types";
-import { KeyboardListener } from "../listeners/keyboard-listener";
 
 export class Dog extends THREE.Object3D {
   private mixer: THREE.AnimationMixer;
   private actions = new Map<AnimationAsset, THREE.AnimationAction>();
   private currentAction?: THREE.AnimationAction;
 
-  constructor(
-    private assetManager: AssetManager,
-    private keyboardListener: KeyboardListener
-  ) {
+  constructor(private assetManager: AssetManager) {
     super();
 
     // Setup mesh
@@ -30,11 +21,7 @@ export class Dog extends THREE.Object3D {
     this.mixer = new THREE.AnimationMixer(dogs);
     this.setupAnimations();
 
-    this.playAnimation(AnimationAsset.Falling);
-
-    // Listeners
-    this.mixer.addEventListener("finished", this.onFinishAnimation);
-    this.keyboardListener.on(" ", this.onPressSpace);
+    this.playAnimation(AnimationAsset.Sitting);
   }
 
   playAnimation(name: AnimationAsset, fadeDuration: number = 0.25) {
@@ -62,21 +49,6 @@ export class Dog extends THREE.Object3D {
   update(dt: number) {
     this.mixer.update(dt);
   }
-
-  private onFinishAnimation = (event: { action: THREE.AnimationAction }) => {
-    const name = event.action.getClip().name;
-    console.log("finished", name);
-
-    if (name === AnimationAsset.RunningJump) {
-      this.playAnimation(AnimationAsset.Running, 0.12);
-    }
-  };
-
-  private onPressSpace = () => {
-    console.log("jump");
-
-    this.playAnimation(AnimationAsset.RunningJump);
-  };
 
   private setupAnimations() {
     this.createActionFor(AnimationAsset.Sitting);

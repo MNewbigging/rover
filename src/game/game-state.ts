@@ -1,11 +1,15 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { RenderPipeline } from "./render-pipeline";
-import { AnimationAsset, AssetManager, ModelAsset } from "./asset-manager";
-import { Dogs } from "./types";
+import { AssetManager } from "./asset-manager";
 import { Dog } from "./dog";
-import { KeyboardListener } from "../listeners/keyboard-listener";
 
+/**
+ * The idea for this game:
+ * - Scene shows a dog in a garden/park/green space
+ * - Player must throw a ball for the dog
+ * - Dog goes to get the ball
+ */
 export class GameState {
   private renderPipeline: RenderPipeline;
   private clock = new THREE.Clock();
@@ -13,7 +17,6 @@ export class GameState {
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera();
   private controls: OrbitControls;
-  private keyboardListener = new KeyboardListener();
 
   private dog: Dog;
 
@@ -37,7 +40,7 @@ export class GameState {
     this.scene.add(ground);
 
     // Doggo
-    this.dog = new Dog(assetManager, this.keyboardListener);
+    this.dog = new Dog(assetManager);
     this.scene.add(this.dog);
 
     // Start game
