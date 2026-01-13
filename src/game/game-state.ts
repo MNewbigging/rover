@@ -8,13 +8,6 @@ import { KeyboardListener } from "../listeners/keyboard-listener";
 import { Ball } from "./ball";
 import { Ground } from "./ground";
 
-/**
- * The idea for this game:
- * - Scene shows a dog in a garden/park/green space
- * - Player must throw a ball for the dog
- * - Dog goes to get the ball
- * - In first person
- */
 export class GameState {
   private renderPipeline: RenderPipeline;
   private clock = new THREE.Clock();
@@ -25,13 +18,10 @@ export class GameState {
   private raycaster = new THREE.Raycaster();
 
   private moveSpeed = 2;
-  private highlightingBall = false;
   private holdingBall = false;
   private dog: Dog;
   private ground: Ground;
   private ball: Ball;
-
-  private thrownBalls: Ball[] = [];
 
   private physicsWorld: CANNON.World;
 
@@ -39,6 +29,7 @@ export class GameState {
     this.setupCamera();
     this.renderPipeline = new RenderPipeline(this.scene, this.camera);
     this.setupLights();
+    this.scene.background = new THREE.Color("#1680AF");
 
     this.controls = new PointerLockControls(
       this.camera,
@@ -46,8 +37,6 @@ export class GameState {
     );
     this.scene.add(this.controls.getObject());
     this.controls.lock();
-
-    this.scene.background = new THREE.Color("#1680AF");
 
     // Ground
     this.ground = new Ground();
@@ -71,7 +60,7 @@ export class GameState {
     this.physicsWorld.addBody(this.ground.physicsBody);
 
     // Listeners
-    window.addEventListener("click", this.throwBall);
+    window.addEventListener("click", this.onClick);
 
     // Start game
     this.update();
@@ -105,9 +94,7 @@ export class GameState {
 
     this.physicsWorld.fixedStep();
 
-    this.ball.update();
-
-    this.thrownBalls.forEach((ball) => ball.update());
+    if (!this.holdingBall) this.ball.update();
 
     this.renderPipeline.render(dt);
   };
@@ -129,28 +116,49 @@ export class GameState {
 
   private highlightBall() {
     this.renderPipeline.clearOutlines();
-    this.highlightingBall = false;
 
-    const ndc = new THREE.Vector2(0); // always in the middle since it's fps controls
-    this.raycaster.setFromCamera(ndc, this.camera);
+    if (this.isLookingAtBall()) {
+      this.renderPipeline.outlineObject(this.ball.renderComponent);
+    }
+  }
+
+  private isLookingAtBall() {
+    this.raycaster.setFromCamera(new THREE.Vector2(), this.camera);
 
     const intersections = this.raycaster.intersectObject(
       this.ball.renderComponent
     );
-    if (intersections.length) {
-      this.renderPipeline.outlineObject(this.ball.renderComponent);
-      this.highlightingBall = true;
-    }
+
+    return !!intersections.length;
   }
 
   private onClick = (e: MouseEvent) => {
     if (e.button !== 0) return;
-    if (!this.highlightingBall) return;
+    if (!this.isLookingAtBall()) return;
 
-    this.camera.add(this.ball.renderComponent);
-    this.ball.position = { x: 0.25, y: 0, z: -1 };
-    this.holdingBall = true;
+    this.pickUpBall();
   };
+
+  private pickUpBall() {
+    console.log("pickup ball");
+
+    // Stop updating ball with physics body properties
+    this.holdingBall = true;
+
+    // Ball must ignore physics while held
+    this.physicsWorld.removeBody(this.ball.physicsBody);
+
+    // Parent ball render comp to camera
+    const ballMesh = this.ball.renderComponent;
+    ballMesh.position.set(0, 0, 0);
+    this.camera.add(ballMesh);
+    ballMesh.position.set(0.3, 0, -1);
+
+    // Use different listeners for the throw
+    window.removeEventListener("click", this.onClick);
+    window.addEventListener("mousedown", this.onMouseDown);
+    window.addEventListener("mouseup", this.onMouseUp);
+  }
 
   private onMouseDown = (e: MouseEvent) => {
     if (e.button !== 0) return;
@@ -160,22 +168,29 @@ export class GameState {
   private onMouseUp = (e: MouseEvent) => {
     if (e.button !== 0) return;
 
-    //
+    this.throwBall();
   };
 
   private throwBall = () => {
-    // Create a new ball
-    const ball = new Ball(this.assetManager);
+    const ballMesh = this.ball.renderComponent;
 
-    // Add it to scene and array and physics world
-    this.scene.add(ball.renderComponent);
-    this.thrownBalls.push(ball);
-    this.physicsWorld.addBody(ball.physicsBody);
-
-    // Set its starting position
+    // Get ball mesh's world position at time of release
     const worldPosition = new THREE.Vector3();
-    this.camera.getWorldPosition(worldPosition);
-    ball.position = worldPosition;
+    ballMesh.getWorldPosition(worldPosition);
+
+    // Unparent ball from the camera, add it back to the scene
+    this.camera.remove(ballMesh);
+    this.scene.add(ballMesh);
+
+    // Add ball back into physics simm
+    this.physicsWorld.addBody(this.ball.physicsBody);
+
+    // Update physics body with world position
+    this.ball.physicsBody.position.set(
+      worldPosition.x,
+      worldPosition.y,
+      worldPosition.z
+    );
 
     // Give it an impulse in the facing direction
     const worldDirection = new THREE.Vector3();
@@ -183,7 +198,10 @@ export class GameState {
 
     worldDirection.multiplyScalar(1);
 
-    ball.physicsBody.applyImpulse(asVec3(worldDirection));
+    this.ball.physicsBody.applyImpulse(asVec3(worldDirection));
+
+    // No longer holding it; update ball with physics props
+    this.holdingBall = false;
   };
 }
 
