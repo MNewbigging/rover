@@ -61,6 +61,8 @@ export class GameState {
 
     // Listeners
     window.addEventListener("click", this.onClick);
+    window.addEventListener("mousedown", this.onMouseDown);
+    window.addEventListener("mouseup", this.onMouseUp);
 
     // Start game
     this.update();
@@ -134,14 +136,13 @@ export class GameState {
 
   private onClick = (e: MouseEvent) => {
     if (e.button !== 0) return;
+    if (this.holdingBall) return;
     if (!this.isLookingAtBall()) return;
 
     this.pickUpBall();
   };
 
   private pickUpBall() {
-    console.log("pickup ball");
-
     // Stop updating ball with physics body properties
     this.holdingBall = true;
 
@@ -153,20 +154,18 @@ export class GameState {
     ballMesh.position.set(0, 0, 0);
     this.camera.add(ballMesh);
     ballMesh.position.set(0.3, 0, -1);
-
-    // Use different listeners for the throw
-    window.removeEventListener("click", this.onClick);
-    window.addEventListener("mousedown", this.onMouseDown);
-    window.addEventListener("mouseup", this.onMouseUp);
   }
 
   private onMouseDown = (e: MouseEvent) => {
     if (e.button !== 0) return;
+    if (!this.holdingBall) return;
+
     this.dog.standUp();
   };
 
   private onMouseUp = (e: MouseEvent) => {
     if (e.button !== 0) return;
+    if (!this.holdingBall) return;
 
     this.throwBall();
   };
