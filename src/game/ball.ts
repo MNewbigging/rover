@@ -27,8 +27,9 @@ export class Ball extends PhysicsObject {
     const radius = 0.05;
 
     const physicsBody = new CANNON.Body({
-      mass: 1,
+      mass: 0.1,
       shape: new CANNON.Sphere(radius),
+      linearDamping: 0.75,
     });
 
     const renderComponent = new THREE.Mesh(

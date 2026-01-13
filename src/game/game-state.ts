@@ -31,6 +31,8 @@ export class GameState {
   private ground: Ground;
   private ball: Ball;
 
+  private thrownBalls: Ball[] = [];
+
   private physicsWorld: CANNON.World;
 
   constructor(private assetManager: AssetManager) {
@@ -64,11 +66,12 @@ export class GameState {
     this.physicsWorld = new CANNON.World({
       gravity: new CANNON.Vec3(0, -9.82, 0),
     });
+    this.physicsWorld.defaultContactMaterial.restitution = 0.75;
     this.physicsWorld.addBody(this.ball.physicsBody);
     this.physicsWorld.addBody(this.ground.physicsBody);
 
     // Listeners
-    //window.addEventListener("click", this.onClick);
+    window.addEventListener("click", this.throwBall);
 
     // Start game
     this.update();
@@ -103,6 +106,8 @@ export class GameState {
     this.physicsWorld.fixedStep();
 
     this.ball.update();
+
+    this.thrownBalls.forEach((ball) => ball.update());
 
     this.renderPipeline.render(dt);
   };
@@ -157,4 +162,31 @@ export class GameState {
 
     //
   };
+
+  private throwBall = () => {
+    // Create a new ball
+    const ball = new Ball();
+
+    // Add it to scene and array and physics world
+    this.scene.add(ball.renderComponent);
+    this.thrownBalls.push(ball);
+    this.physicsWorld.addBody(ball.physicsBody);
+
+    // Set its starting position
+    const worldPosition = new THREE.Vector3();
+    this.camera.getWorldPosition(worldPosition);
+    ball.position = worldPosition;
+
+    // Give it an impulse in the facing direction
+    const worldDirection = new THREE.Vector3();
+    this.camera.getWorldDirection(worldDirection);
+
+    worldDirection.multiplyScalar(1);
+
+    ball.physicsBody.applyImpulse(asVec3(worldDirection));
+  };
+}
+
+function asVec3(v: THREE.Vector3) {
+  return new CANNON.Vec3(v.x, v.y, v.z);
 }
