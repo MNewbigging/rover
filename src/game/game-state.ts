@@ -1,3 +1,4 @@
+import * as CANNON from "cannon-es";
 import * as THREE from "three";
 import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls";
 import { RenderPipeline } from "./render-pipeline";
@@ -5,6 +6,7 @@ import { AssetManager } from "./asset-manager";
 import { Dog } from "./dog";
 import { KeyboardListener } from "../listeners/keyboard-listener";
 import { Ball } from "./ball";
+import { Ground } from "./ground";
 
 /**
  * The idea for this game:
@@ -26,8 +28,10 @@ export class GameState {
   private highlightingBall = false;
   private holdingBall = false;
   private dog: Dog;
-  private ground: THREE.Mesh;
+  private ground: Ground;
   private ball: Ball;
+
+  private physicsWorld: CANNON.World;
 
   constructor(private assetManager: AssetManager) {
     this.setupCamera();
@@ -43,29 +47,28 @@ export class GameState {
 
     this.scene.background = new THREE.Color("#1680AF");
 
-    // Scene
-    const ground = new THREE.Mesh(
-      new THREE.PlaneGeometry(10, 10),
-      new THREE.MeshBasicMaterial({ color: "green" })
-    );
-    ground.rotateX(-Math.PI / 2);
-    this.scene.add(ground);
-    this.ground = ground;
+    // Ground
+    this.ground = new Ground();
+    this.scene.add(this.ground.renderComponent);
 
     // Doggo
     this.dog = new Dog(assetManager, this.camera);
     this.scene.add(this.dog);
 
     // Ball
-    this.ball = new Ball(assetManager);
-    this.scene.add(this.ball);
-    this.ball.restOnGround();
-    this.ball.position.z += 0.3; // just in front of dog TODO do this automagically somehow?
+    this.ball = new Ball();
+    this.scene.add(this.ball.renderComponent);
+    this.ball.position = { x: 0, y: 1, z: 0.3 };
+
+    // Physics
+    this.physicsWorld = new CANNON.World({
+      gravity: new CANNON.Vec3(0, -9.82, 0),
+    });
+    this.physicsWorld.addBody(this.ball.physicsBody);
+    this.physicsWorld.addBody(this.ground.physicsBody);
 
     // Listeners
-    window.addEventListener("click", this.onClick);
-    //window.addEventListener("pointerdown", this.onMouseDown);
-    //window.addEventListener("pointerup", this.onMouseUp);
+    //window.addEventListener("click", this.onClick);
 
     // Start game
     this.update();
@@ -97,6 +100,10 @@ export class GameState {
 
     this.highlightBall();
 
+    this.physicsWorld.fixedStep();
+
+    this.ball.update();
+
     this.renderPipeline.render(dt);
   };
 
@@ -116,17 +123,17 @@ export class GameState {
   }
 
   private highlightBall() {
-    if (!this.ball.restingOnGround) return;
-
     this.renderPipeline.clearOutlines();
     this.highlightingBall = false;
 
     const ndc = new THREE.Vector2(0); // always in the middle since it's fps controls
     this.raycaster.setFromCamera(ndc, this.camera);
 
-    const intersections = this.raycaster.intersectObject(this.ball);
+    const intersections = this.raycaster.intersectObject(
+      this.ball.renderComponent
+    );
     if (intersections.length) {
-      this.renderPipeline.outlineObject(this.ball);
+      this.renderPipeline.outlineObject(this.ball.renderComponent);
       this.highlightingBall = true;
     }
   }
@@ -135,9 +142,8 @@ export class GameState {
     if (e.button !== 0) return;
     if (!this.highlightingBall) return;
 
-    this.camera.add(this.ball);
-    this.ball.position.z -= 1;
-    this.ball.position.x += 0.25;
+    this.camera.add(this.ball.renderComponent);
+    this.ball.position = { x: 0.25, y: 0, z: -1 };
     this.holdingBall = true;
   };
 
@@ -149,18 +155,6 @@ export class GameState {
   private onMouseUp = (e: MouseEvent) => {
     if (e.button !== 0) return;
 
-    // Get ndc
-    const ndc = new THREE.Vector2();
-    ndc.x = (e.clientX / window.innerWidth) * 2 - 1;
-    ndc.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-    // Raycast against ground
-    this.raycaster.setFromCamera(ndc, this.camera);
-    const intersections = this.raycaster.intersectObject(this.ground);
-    if (!intersections.length) return;
-
-    // Get clicked position
-    const pos = intersections[0].point;
-    this.dog.fetch(pos);
+    //
   };
 }
