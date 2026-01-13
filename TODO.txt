@@ -1,37 +1,5 @@
-Phase 1: Dog moves where you click
-- Raycast on click 
-- Move dog there and stop
-- Face the right way 
-- Move through correct animations
-
-Phase 2: Dog returns to start after moving to click pos
-- Turn to face start point
-- Move to start point 
-- Stop and sit down
-
-Phase 3: First person controls
-- WSAD to move around
-- Locked mouse to look around
-
-
-Phase 3: Ball appears where you click
-- Dog picks up ball & returns with it
-- When reaching start, drops the ball
-
-Phase 4: Ball physics
-- use a physics library
-- dog waits a short time then runs after the ball 
-
-Phase 5: Scene design
-- grass shader? 
-- something to mark start point
-
-Phase 6: Dog behaviour
-- More animations
-- Bending/turning animation logic
-
-Phase 7: First person?
-- move around the scene, dog follows you? 
+Dog behaviour:
+- dog fetches the ball
 
 
 

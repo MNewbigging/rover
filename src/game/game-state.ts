@@ -25,12 +25,18 @@ export class GameState {
 
   private physicsWorld: CANNON.World;
 
+  private reused = {
+    ndc: new THREE.Vector2(),
+  };
+
   constructor(private assetManager: AssetManager) {
+    // High level setup
     this.setupCamera();
     this.renderPipeline = new RenderPipeline(this.scene, this.camera);
     this.setupLights();
     this.scene.background = new THREE.Color("#1680AF");
 
+    // Controls
     this.controls = new PointerLockControls(
       this.camera,
       this.renderPipeline.canvas
@@ -125,7 +131,7 @@ export class GameState {
   }
 
   private isLookingAtBall() {
-    this.raycaster.setFromCamera(new THREE.Vector2(), this.camera);
+    this.raycaster.setFromCamera(this.reused.ndc, this.camera);
 
     const intersections = this.raycaster.intersectObject(
       this.ball.renderComponent
@@ -141,7 +147,7 @@ export class GameState {
   }
 
   private onClick = (e: MouseEvent) => {
-    if (e.button !== 0) return;
+    if (!isLeftClick(e)) return;
     if (this.holdingBall) return;
     if (!this.isLookingAtBall()) return;
     if (!this.isCloseEnoughToPickupBall()) return;
@@ -150,13 +156,13 @@ export class GameState {
   };
 
   private pickUpBall() {
-    // Stop updating ball with physics body properties
+    // Stop updating ball with physics body properties in update loop
     this.holdingBall = true;
 
     // Ball must ignore physics while held
     this.physicsWorld.removeBody(this.ball.physicsBody);
 
-    // Parent ball render comp to camera
+    // Parent ball mesh to camera
     const ballMesh = this.ball.renderComponent;
     ballMesh.position.set(0, 0, 0);
     this.camera.add(ballMesh);
@@ -164,14 +170,14 @@ export class GameState {
   }
 
   private onMouseDown = (e: MouseEvent) => {
-    if (e.button !== 0) return;
+    if (!isLeftClick(e)) return;
     if (!this.holdingBall) return;
 
     this.dog.standUp();
   };
 
   private onMouseUp = (e: MouseEvent) => {
-    if (e.button !== 0) return;
+    if (!isLeftClick(e)) return;
     if (!this.holdingBall) return;
 
     this.throwBall();
@@ -201,9 +207,7 @@ export class GameState {
     // Give it an impulse in the facing direction
     const worldDirection = new THREE.Vector3();
     this.camera.getWorldDirection(worldDirection);
-
     worldDirection.multiplyScalar(1);
-
     this.ball.physicsBody.applyImpulse(asVec3(worldDirection));
 
     // No longer holding it; update ball with physics props
@@ -213,4 +217,8 @@ export class GameState {
 
 function asVec3(v: THREE.Vector3) {
   return new CANNON.Vec3(v.x, v.y, v.z);
+}
+
+function isLeftClick(e: MouseEvent) {
+  return e.button === 0;
 }
