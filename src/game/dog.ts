@@ -15,9 +15,11 @@ export class Dog extends THREE.Object3D {
   private actions = new Map<AnimationAsset, THREE.AnimationAction>();
   private currentAction?: THREE.AnimationAction;
 
+  private state: DogState = DogState.Waiting;
   private moveSpeed = 3;
 
-  private state: DogState = DogState.Waiting;
+  private jawBone?: THREE.Object3D;
+  private readonly ballHoldPosition = new THREE.Vector3(0, -5, 15);
 
   constructor(
     private assetManager: AssetManager,
@@ -30,7 +32,7 @@ export class Dog extends THREE.Object3D {
     // Setup mesh
     const dogs = this.assetManager.getModel(ModelAsset.DOGS);
     dogs.scale.multiplyScalar(0.01);
-    getDog(dogs, Dogs.GoldenRetrieverCollar);
+    showDog(dogs, "SK_Animal_Dog_GoldenRetriever_Collar_01");
     hideDogExtras(dogs);
     this.add(dogs);
     console.log(dogs);
@@ -41,6 +43,16 @@ export class Dog extends THREE.Object3D {
     this.mixer.addEventListener("finished", this.onFinishAnimation);
 
     this.playAnimation(AnimationAsset.Sitting);
+
+    // Testing ball pickup
+    const sphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.05, 16, 16),
+      new THREE.MeshBasicMaterial({ color: "red" })
+    );
+
+    // Get a reference to the jaw bone for later use
+    const boneParent = dogs.children[1];
+    this.jawBone = boneParent.getObjectByName("jaw_C0_0_joint");
   }
 
   isCurrentAnimation(name: AnimationAsset) {
@@ -138,18 +150,16 @@ export class Dog extends THREE.Object3D {
   }
 
   private pickupBall() {
-    console.log("Dog picked up ball");
-
     // Stop ball physics, parent to dog
     this.ball.stopPhysics();
     this.ball.renderComponent.position.set(0, 0, 0);
-    this.add(this.ball.renderComponent); // todo need to put on dogs child object instead
-    this.ball.renderComponent.position.set(0, 0.5, 1);
+
+    this.jawBone?.add(this.ball.renderComponent);
+    this.ball.renderComponent.position.copy(this.ballHoldPosition);
+    this.ball.renderComponent.scale.multiplyScalar(100);
   }
 
   private returnWithBall(dt: number) {
-    console.log("resturning with ball");
-
     // Return to player's position
     if (this.isCloseEnoughToPlayer()) {
       this.dropBall();
@@ -172,8 +182,9 @@ export class Dog extends THREE.Object3D {
     // Unparent ball from dog, restart physics
     const worldPosition = new THREE.Vector3();
     this.ball.renderComponent.getWorldPosition(worldPosition);
-    this.remove(this.ball.renderComponent);
+    this.jawBone?.remove(this.ball.renderComponent);
     this.scene.add(this.ball.renderComponent);
+    this.ball.renderComponent.scale.multiplyScalar(0.01);
 
     this.ball.physicsBody.position.set(
       worldPosition.x,
@@ -181,8 +192,6 @@ export class Dog extends THREE.Object3D {
       worldPosition.z
     );
     this.ball.restartPhysics();
-
-    console.log("Dog dropped ball");
   }
 
   private moveTowardsPosition(position: THREE.Vector3, dt: number) {
@@ -264,7 +273,7 @@ export class Dog extends THREE.Object3D {
   }
 }
 
-function getDog(topdog: THREE.Object3D, dog: Dogs) {
+function getDog(topdog: THREE.Object3D, name: string) {
   // The top-level object is a group with two children; a Group named 'mesh', and a Bone
   const meshGroup = topdog.children[0];
 
@@ -272,10 +281,20 @@ function getDog(topdog: THREE.Object3D, dog: Dogs) {
   const dogsGroup = meshGroup.children[0];
 
   // The dogs group has 28 skinned mesh children, each represents a dog
+  return dogsGroup.getObjectByName(name);
+}
 
-  // Make all dogs invisible, then make the required one visible
+function showDog(topdog: THREE.Object3D, name: string) {
+  // The top-level object is a group with two children; a Group named 'mesh', and a Bone
+  const meshGroup = topdog.children[0];
+
+  // The mesh group has 18 children, all groups with Dogs being the first and attachments/other stuff in the rest
+  const dogsGroup = meshGroup.children[0];
+
+  // The dogs group has 28 skinned mesh children, each represents a dog
   dogsGroup.children.forEach((child) => (child.visible = false));
-  dogsGroup.children[dog].visible = true;
+  const dog = dogsGroup.getObjectByName(name);
+  if (dog) dog.visible = true;
 }
 
 function hideDogExtras(topdog: THREE.Object3D) {

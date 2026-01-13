@@ -24,6 +24,8 @@ export class PhysicsObject {
   stopPhysics() {
     this.physicsStopped = true;
     this.physicsWorld.removeBody(this.physicsBody);
+    this.physicsBody.velocity.set(0, 0, 0);
+    this.physicsBody.angularVelocity.set(0, 0, 0);
   }
 
   restartPhysics() {
