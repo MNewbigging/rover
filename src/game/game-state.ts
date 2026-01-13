@@ -54,7 +54,7 @@ export class GameState {
     this.ball.position = { x: 0, y: 1, z: 0.3 };
 
     // Doggo
-    this.dog = new Dog(assetManager, this.camera, this.ball);
+    this.dog = new Dog(assetManager, this.camera, this.ball, this.scene);
     this.scene.add(this.dog);
 
     // Physics

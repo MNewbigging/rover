@@ -15,14 +15,15 @@ export class Dog extends THREE.Object3D {
   private actions = new Map<AnimationAsset, THREE.AnimationAction>();
   private currentAction?: THREE.AnimationAction;
 
-  private moveSpeed = 5;
+  private moveSpeed = 3;
 
   private state: DogState = DogState.Waiting;
 
   constructor(
     private assetManager: AssetManager,
     private camera: THREE.PerspectiveCamera,
-    private ball: Ball
+    private ball: Ball,
+    private scene: THREE.Scene
   ) {
     super();
 
@@ -172,6 +173,7 @@ export class Dog extends THREE.Object3D {
     const worldPosition = new THREE.Vector3();
     this.ball.renderComponent.getWorldPosition(worldPosition);
     this.remove(this.ball.renderComponent);
+    this.scene.add(this.ball.renderComponent);
 
     this.ball.physicsBody.position.set(
       worldPosition.x,
