@@ -1,6 +1,14 @@
 import * as THREE from "three";
 import { AnimationAsset, AssetManager, ModelAsset } from "./asset-manager";
 import { Dogs } from "./types";
+import { Ball } from "./ball";
+
+enum DogState {
+  Fetching,
+  Returning,
+  Waiting,
+  Following,
+}
 
 export class Dog extends THREE.Object3D {
   private mixer: THREE.AnimationMixer;
@@ -8,14 +16,14 @@ export class Dog extends THREE.Object3D {
   private currentAction?: THREE.AnimationAction;
 
   private startPos = new THREE.Vector3(); // for now
-  private ballPos?: THREE.Vector3;
   private moveSpeed = 1;
 
-  private hasBall = false;
+  private state: DogState = DogState.Waiting;
 
   constructor(
     private assetManager: AssetManager,
-    private camera: THREE.PerspectiveCamera
+    private camera: THREE.PerspectiveCamera,
+    private ball: Ball
   ) {
     super();
 
@@ -25,6 +33,7 @@ export class Dog extends THREE.Object3D {
     getDog(dogs, Dogs.GoldenRetrieverCollar);
     hideDogExtras(dogs);
     this.add(dogs);
+    console.log(dogs);
 
     // Animations
     this.mixer = new THREE.AnimationMixer(dogs);
@@ -66,83 +75,115 @@ export class Dog extends THREE.Object3D {
     }
   }
 
-  fetch(ballPos: THREE.Vector3) {
-    if (this.ballPos) return;
-
-    this.ballPos = ballPos;
-
-    // If already standing, start running
-    if (this.isCurrentAnimation(AnimationAsset.Standing)) {
-      this.playAnimation(AnimationAsset.Running);
-    }
+  fetch() {
+    this.state = DogState.Fetching;
   }
 
   update(dt: number) {
     this.mixer.update(dt);
 
-    // Move towards target
-    this.moveTowardsTarget(dt);
+    switch (this.state) {
+      case DogState.Waiting:
+        this.waitForThrow();
+        break;
+      case DogState.Following:
+        this.followPlayer();
+        break;
+      case DogState.Fetching:
+        this.runTowardsBall(dt);
+        break;
+      case DogState.Returning:
+        this.returnWithBall();
+        break;
+    }
   }
 
-  private moveTowardsTarget(dt: number) {
-    // Waiting at start point for ball to be thrown
-    if (!this.hasBall && !this.ballPos) return; // nothing to move towards
+  private waitForThrow() {
+    // TODO Randomly perform some animations / sfx
 
-    // Fetching the ball
-    if (!this.hasBall && this.ballPos) {
-      this.moveTowardsBall(this.ballPos, dt);
+    // TODO see if I can only change anim as/when rather than every frame...
+    if (this.isCurrentAnimation(AnimationAsset.Running)) {
+      this.playAnimation(AnimationAsset.StandToSit);
+    }
+
+    // TODO should probably follow player if they move away too far...
+  }
+
+  private followPlayer() {
+    // TODO stand, pickup ball, walk after player, drop ball, sit and wait
+  }
+
+  private runTowardsBall(dt: number) {
+    // If close enough to ball, grab it & can start to return
+    if (this.isCloseEnoughToBall()) {
+      this.pickupBall();
+      this.state = DogState.Returning;
       return;
     }
 
-    // Returning to start point with the ball
-    if (this.hasBall) this.moveToStartPos(dt);
+    // Need to stand up if sitting, or run if already standing
+    if (this.isCurrentAnimation(AnimationAsset.Sitting)) {
+      // When this finishes, standing will automatically start
+      this.playAnimation(AnimationAsset.SitToStand);
+    } else if (this.isCurrentAnimation(AnimationAsset.Standing)) {
+      this.playAnimation(AnimationAsset.Running);
+    }
+
+    // Move towards the ball
+    this.moveTowardsPosition(this.ball.renderComponent.position, dt);
   }
 
-  private moveTowardsBall(ballPos: THREE.Vector3, dt: number) {
-    // Can't move when transitioning to a stand
-    if (this.isCurrentAnimation(AnimationAsset.SitToStand)) return;
+  private isCloseEnoughToBall() {
+    return this.position.distanceTo(this.ball.renderComponent.position) < 2;
+  }
 
-    const direction = ballPos.clone().sub(this.position).normalize();
+  private pickupBall() {
+    // How should this work?!
+    // 1 - Ball should ignore physics, parent to dog
+  }
+
+  private returnWithBall() {
+    // Return to player's position
+    if (this.isCloseEnoughToPlayer()) {
+      this.dropBall();
+      this.state = DogState.Waiting;
+      return;
+    }
+
+    // Should be running
+    this.playAnimation(AnimationAsset.Running);
+
+    // TODO start walking when close enough, then drop
+  }
+
+  private isCloseEnoughToPlayer() {
+    return this.position.distanceTo(this.camera.position) < 3;
+  }
+
+  private dropBall() {
+    //
+  }
+
+  private moveTowardsPosition(position: THREE.Vector3, dt: number) {
+    // Can only move towards ball if running
+    if (!this.isCurrentAnimation(AnimationAsset.Running)) return;
+
+    const direction = position.clone().sub(this.position).normalize();
     const nextPos = this.position
       .clone()
       .add(direction.multiplyScalar(this.moveSpeed * dt));
 
-    // For now until I get turning/bending implemented
+    // TODO get the bending/turning animations working
     this.lookAt(nextPos);
     this.position.copy(nextPos);
-
-    // If close enough, pick up the ball
-    if (this.position.distanceTo(ballPos) < 0.01) {
-      this.ballPos = undefined; // because it's in the dog's mouth!
-      this.hasBall = true;
-    }
-  }
-
-  private moveToStartPos(dt: number) {
-    const direction = this.startPos.clone().sub(this.position).normalize();
-    const nextPos = this.position
-      .clone()
-      .add(direction.multiplyScalar(this.moveSpeed * dt));
-
-    this.lookAt(nextPos);
-    this.position.copy(nextPos);
-
-    // If close enough, drop the ball and sit down
-    if (this.position.distanceTo(this.startPos) < 0.01) {
-      this.hasBall = false;
-      this.playAnimation(AnimationAsset.StandToSit);
-      // TODO face player
-    }
   }
 
   private onFinishAnimation = (event: { action: THREE.AnimationAction }) => {
+    // This makes sure the right loop anim is played after the corresponding transition anim
     const name = event.action.getClip().name;
 
     if (name === AnimationAsset.SitToStand) {
-      // If there is a target already then start running
-      this.playAnimation(
-        this.ballPos ? AnimationAsset.Running : AnimationAsset.Standing
-      );
+      this.playAnimation(AnimationAsset.Standing);
     }
 
     if (name === AnimationAsset.StandToSit) {

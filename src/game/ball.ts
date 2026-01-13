@@ -3,7 +3,7 @@ import { PhysicsObject } from "./physics-object";
 import { AssetManager, ModelAsset, TextureAsset } from "./asset-manager";
 
 export class Ball extends PhysicsObject {
-  constructor(assetManager: AssetManager) {
+  constructor(private physicsWorld: CANNON.World, assetManager: AssetManager) {
     const renderComponent = assetManager.getModel(ModelAsset.Ball);
     assetManager.applyModelTexture(renderComponent, TextureAsset.Dog);
     renderComponent.scale.multiplyScalar(0.01);
@@ -18,4 +18,8 @@ export class Ball extends PhysicsObject {
 
     super(physicsBody, renderComponent);
   }
+
+  stopPhysics() {}
+
+  restartPhysics() {}
 }

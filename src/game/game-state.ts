@@ -23,7 +23,7 @@ export class GameState {
   private ground: Ground;
   private ball: Ball;
 
-  private physicsWorld: CANNON.World;
+  private physicsWorld = new CANNON.World();
 
   private reused = {
     ndc: new THREE.Vector2(),
@@ -48,19 +48,17 @@ export class GameState {
     this.ground = new Ground();
     this.scene.add(this.ground.renderComponent);
 
-    // Doggo
-    this.dog = new Dog(assetManager, this.camera);
-    this.scene.add(this.dog);
-
     // Ball
-    this.ball = new Ball(assetManager);
+    this.ball = new Ball(this.physicsWorld, assetManager);
     this.scene.add(this.ball.renderComponent);
     this.ball.position = { x: 0, y: 1, z: 0.3 };
 
+    // Doggo
+    this.dog = new Dog(assetManager, this.camera, this.ball);
+    this.scene.add(this.dog);
+
     // Physics
-    this.physicsWorld = new CANNON.World({
-      gravity: new CANNON.Vec3(0, -9.82, 0),
-    });
+    this.physicsWorld.gravity.set(0, -9.82, 0);
     this.physicsWorld.defaultContactMaterial.restitution = 0.75;
     this.physicsWorld.addBody(this.ball.physicsBody);
     this.physicsWorld.addBody(this.ground.physicsBody);

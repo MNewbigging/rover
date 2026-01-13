@@ -1,21 +1,14 @@
-Dog behaviour:
-- dog fetches the ball
+Todo:
+- dog fetches ball
+- pause/resumme on lose focus/lose controls lock
 
-
-
-
-
-
-
-Misc improvements:
-- pause when window loses focus, resume on regain focus
 
 
 
 Misc tidy:
 - dog-builder class to handle the high level setup of the model (see functions in Dog.ts outside Dog class)
 - use simpler event listener
-- remove render pipeline if not needed by the end
+
 
 
 
