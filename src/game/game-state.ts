@@ -100,7 +100,7 @@ export class GameState {
 
     this.physicsWorld.fixedStep();
 
-    if (!this.holdingBall) this.ball.update();
+    this.ball.update();
 
     this.renderPipeline.render(dt);
   };
@@ -155,16 +155,16 @@ export class GameState {
 
   private pickUpBall() {
     // Stop updating ball with physics body properties in update loop
-    this.holdingBall = true;
-
-    // Ball must ignore physics while held
-    this.physicsWorld.removeBody(this.ball.physicsBody);
+    this.ball.stopPhysics();
 
     // Parent ball mesh to camera
     const ballMesh = this.ball.renderComponent;
     ballMesh.position.set(0, 0, 0);
     this.camera.add(ballMesh);
     ballMesh.position.set(0.3, 0, -1);
+
+    // Now holding the ball ( this flag allows throwing logic )
+    this.holdingBall = true;
   }
 
   private onMouseDown = (e: MouseEvent) => {
@@ -192,9 +192,6 @@ export class GameState {
     this.camera.remove(ballMesh);
     this.scene.add(ballMesh);
 
-    // Add ball back into physics simm
-    this.physicsWorld.addBody(this.ball.physicsBody);
-
     // Update physics body with world position
     this.ball.physicsBody.position.set(
       worldPosition.x,
@@ -209,7 +206,11 @@ export class GameState {
     this.ball.physicsBody.applyImpulse(asVec3(worldDirection));
 
     // No longer holding it; update ball with physics props
+    this.ball.restartPhysics();
     this.holdingBall = false;
+
+    // Tell dog to fetch - might need a delay here
+    this.dog.fetch();
   };
 }
 

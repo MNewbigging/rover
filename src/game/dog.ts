@@ -15,8 +15,7 @@ export class Dog extends THREE.Object3D {
   private actions = new Map<AnimationAsset, THREE.AnimationAction>();
   private currentAction?: THREE.AnimationAction;
 
-  private startPos = new THREE.Vector3(); // for now
-  private moveSpeed = 1;
+  private moveSpeed = 5;
 
   private state: DogState = DogState.Waiting;
 
@@ -93,7 +92,7 @@ export class Dog extends THREE.Object3D {
         this.runTowardsBall(dt);
         break;
       case DogState.Returning:
-        this.returnWithBall();
+        this.returnWithBall(dt);
         break;
     }
   }
@@ -134,15 +133,22 @@ export class Dog extends THREE.Object3D {
   }
 
   private isCloseEnoughToBall() {
-    return this.position.distanceTo(this.ball.renderComponent.position) < 2;
+    return this.position.distanceTo(this.ball.renderComponent.position) < 1;
   }
 
   private pickupBall() {
-    // How should this work?!
-    // 1 - Ball should ignore physics, parent to dog
+    console.log("Dog picked up ball");
+
+    // Stop ball physics, parent to dog
+    this.ball.stopPhysics();
+    this.ball.renderComponent.position.set(0, 0, 0);
+    this.add(this.ball.renderComponent); // todo need to put on dogs child object instead
+    this.ball.renderComponent.position.set(0, 0.5, 1);
   }
 
-  private returnWithBall() {
+  private returnWithBall(dt: number) {
+    console.log("resturning with ball");
+
     // Return to player's position
     if (this.isCloseEnoughToPlayer()) {
       this.dropBall();
@@ -154,6 +160,7 @@ export class Dog extends THREE.Object3D {
     this.playAnimation(AnimationAsset.Running);
 
     // TODO start walking when close enough, then drop
+    this.moveTowardsPosition(this.camera.position, dt);
   }
 
   private isCloseEnoughToPlayer() {
@@ -161,7 +168,19 @@ export class Dog extends THREE.Object3D {
   }
 
   private dropBall() {
-    //
+    // Unparent ball from dog, restart physics
+    const worldPosition = new THREE.Vector3();
+    this.ball.renderComponent.getWorldPosition(worldPosition);
+    this.remove(this.ball.renderComponent);
+
+    this.ball.physicsBody.position.set(
+      worldPosition.x,
+      worldPosition.y,
+      worldPosition.z
+    );
+    this.ball.restartPhysics();
+
+    console.log("Dog dropped ball");
   }
 
   private moveTowardsPosition(position: THREE.Vector3, dt: number) {
@@ -172,6 +191,9 @@ export class Dog extends THREE.Object3D {
     const nextPos = this.position
       .clone()
       .add(direction.multiplyScalar(this.moveSpeed * dt));
+
+    // Ensure dog stays on the floor (will move upwards when running towards camera pos)
+    nextPos.y = 0;
 
     // TODO get the bending/turning animations working
     this.lookAt(nextPos);
