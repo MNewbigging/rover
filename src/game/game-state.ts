@@ -45,7 +45,7 @@ export class GameState {
     this.controls.lock();
 
     // Ground
-    this.ground = new Ground();
+    this.ground = new Ground(this.physicsWorld);
     this.scene.add(this.ground.renderComponent);
 
     // Ball

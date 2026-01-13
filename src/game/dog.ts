@@ -35,7 +35,6 @@ export class Dog extends THREE.Object3D {
     showDog(dogs, "SK_Animal_Dog_GoldenRetriever_Collar_01");
     hideDogExtras(dogs);
     this.add(dogs);
-    console.log(dogs);
 
     // Animations
     this.mixer = new THREE.AnimationMixer(dogs);
@@ -44,15 +43,9 @@ export class Dog extends THREE.Object3D {
 
     this.playAnimation(AnimationAsset.Sitting);
 
-    // Testing ball pickup
-    const sphere = new THREE.Mesh(
-      new THREE.SphereGeometry(0.05, 16, 16),
-      new THREE.MeshBasicMaterial({ color: "red" })
-    );
-
     // Get a reference to the jaw bone for later use
     const boneParent = dogs.children[1];
-    this.jawBone = boneParent.getObjectByName("jaw_C0_0_joint");
+    this.jawBone = boneParent.getObjectByName("jaw_C0_0_joint"); // might not work with other dog types
   }
 
   isCurrentAnimation(name: AnimationAsset) {
@@ -156,7 +149,7 @@ export class Dog extends THREE.Object3D {
 
     this.jawBone?.add(this.ball.renderComponent);
     this.ball.renderComponent.position.copy(this.ballHoldPosition);
-    this.ball.renderComponent.scale.multiplyScalar(100);
+    this.ball.renderComponent.scale.multiplyScalar(100); // because dog scale is 0.01
   }
 
   private returnWithBall(dt: number) {

@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { PhysicsObject } from "./physics-object";
 
 export class Ground extends PhysicsObject {
-  constructor() {
+  constructor(physicsWorld: CANNON.World) {
     const physicsBody = new CANNON.Body({
       mass: 0,
       shape: new CANNON.Plane(),
@@ -14,7 +14,7 @@ export class Ground extends PhysicsObject {
       new THREE.MeshBasicMaterial({ color: "green" })
     );
 
-    super(physicsBody, renderComponent);
+    super(physicsBody, renderComponent, physicsWorld);
 
     // Ground never moves, but it needs rotating once at the start:
     this.physicsBody.quaternion.setFromAxisAngle(
