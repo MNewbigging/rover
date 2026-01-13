@@ -119,7 +119,7 @@ export class GameState {
   private highlightBall() {
     this.renderPipeline.clearOutlines();
 
-    if (this.isLookingAtBall()) {
+    if (this.isCloseEnoughToPickupBall() && this.isLookingAtBall()) {
       this.renderPipeline.outlineObject(this.ball.renderComponent);
     }
   }
@@ -134,10 +134,17 @@ export class GameState {
     return !!intersections.length;
   }
 
+  private isCloseEnoughToPickupBall() {
+    return (
+      this.camera.position.distanceTo(this.ball.renderComponent.position) < 2
+    );
+  }
+
   private onClick = (e: MouseEvent) => {
     if (e.button !== 0) return;
     if (this.holdingBall) return;
     if (!this.isLookingAtBall()) return;
+    if (!this.isCloseEnoughToPickupBall()) return;
 
     this.pickUpBall();
   };
