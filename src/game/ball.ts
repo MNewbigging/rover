@@ -1,41 +1,20 @@
-import * as THREE from "three";
 import * as CANNON from "cannon-es";
 import { PhysicsObject } from "./physics-object";
-
-// export class Ball extends THREE.Object3D {
-//   restingOnGround = false;
-
-//   constructor(assetManager: AssetManager) {
-//     super();
-
-//     const ball = assetManager.getModel(ModelAsset.Ball);
-//     assetManager.applyModelTexture(ball, TextureAsset.Dog);
-//     ball.scale.multiplyScalar(0.01);
-//     this.add(ball);
-//   }
-
-//   restOnGround() {
-//     const bounds = new THREE.Box3().setFromObject(this);
-//     const size = bounds.getSize(new THREE.Vector3());
-//     this.position.y += size.y / 2;
-//     this.restingOnGround = true;
-//   }
-// }
+import { AssetManager, ModelAsset, TextureAsset } from "./asset-manager";
 
 export class Ball extends PhysicsObject {
-  constructor() {
-    const radius = 0.05;
+  constructor(assetManager: AssetManager) {
+    const renderComponent = assetManager.getModel(ModelAsset.Ball);
+    assetManager.applyModelTexture(renderComponent, TextureAsset.Dog);
+    renderComponent.scale.multiplyScalar(0.01);
 
+    const radius = 0.049; // model is roughly 0.098 cubed
     const physicsBody = new CANNON.Body({
       mass: 0.1,
       shape: new CANNON.Sphere(radius),
       linearDamping: 0.75,
+      angularDamping: 0.75,
     });
-
-    const renderComponent = new THREE.Mesh(
-      new THREE.SphereGeometry(radius),
-      new THREE.MeshNormalMaterial()
-    );
 
     super(physicsBody, renderComponent);
   }

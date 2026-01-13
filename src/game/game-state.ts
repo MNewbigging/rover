@@ -58,7 +58,7 @@ export class GameState {
     this.scene.add(this.dog);
 
     // Ball
-    this.ball = new Ball();
+    this.ball = new Ball(assetManager);
     this.scene.add(this.ball.renderComponent);
     this.ball.position = { x: 0, y: 1, z: 0.3 };
 
@@ -165,7 +165,7 @@ export class GameState {
 
   private throwBall = () => {
     // Create a new ball
-    const ball = new Ball();
+    const ball = new Ball(this.assetManager);
 
     // Add it to scene and array and physics world
     this.scene.add(ball.renderComponent);
