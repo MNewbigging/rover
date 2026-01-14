@@ -7,6 +7,7 @@ import { Dog } from "./dog";
 import { KeyboardListener } from "../listeners/keyboard-listener";
 import { Ball } from "./ball";
 import { Ground } from "./ground";
+import { NewDog } from "./dog/new-dog";
 
 export class GameState {
   private renderPipeline: RenderPipeline;
@@ -18,7 +19,7 @@ export class GameState {
   private raycaster = new THREE.Raycaster();
 
   private moveSpeed = 2;
-  private dog: Dog;
+  private dog: NewDog;
   private ground: Ground;
   private ball: Ball;
 
@@ -53,7 +54,7 @@ export class GameState {
     this.ball.position = { x: 0, y: 1, z: 0.3 };
 
     // Doggo
-    this.dog = new Dog(assetManager, this.camera, this.ball, this.scene);
+    this.dog = new NewDog(this.ball, this.camera, assetManager);
     this.scene.add(this.dog);
 
     // Physics
@@ -170,7 +171,7 @@ export class GameState {
     if (!isLeftClick(e)) return;
     if (!this.ball.playerHasBall) return;
 
-    this.dog.standUp();
+    // todo start tracking force to apply to throw
   };
 
   private onMouseUp = (e: MouseEvent) => {
@@ -207,9 +208,6 @@ export class GameState {
     // No longer holding it; update ball with physics props
     this.ball.restartPhysics();
     this.ball.playerHasBall = false;
-
-    // Tell dog to fetch - might need a delay here
-    this.dog.fetch();
   };
 }
 
