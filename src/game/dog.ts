@@ -1,13 +1,12 @@
 import * as THREE from "three";
 import { AnimationAsset, AssetManager, ModelAsset } from "./asset-manager";
-import { Dogs } from "./types";
 import { Ball } from "./ball";
 
 enum DogState {
-  Fetching,
-  Returning,
-  Waiting,
-  Following,
+  Fetching, // actively going after the ball
+  Returning, // bringing the ball back to the player
+  Waiting, // sitting and waiting for a throw
+  Following, // walking after the player
 }
 
 export class Dog extends THREE.Object3D {
