@@ -3,10 +3,17 @@ import { DogBehaviour } from "../behaviours/dog-behaviour";
 import { DropBehaviour } from "../behaviours/drop-behaviour";
 import { MoveToPlayerBehaviour } from "../behaviours/move-to-player-behaviour";
 import { PickupBehaviour } from "../behaviours/pickup-behaviour";
-import { DogGoal } from "./dog-goal";
+import { DogGoal, DogGoalName } from "./dog-goal";
 
 export class FollowGoal extends DogGoal {
+  name: DogGoalName = "follow";
   behaviours: DogBehaviour[] = [];
+  currentBehaviour?: DogBehaviour;
+
+  canFinish(): boolean {
+    // Only once all behaviours are done can this goal finish
+    return this.behaviours.length === 0 && this.currentBehaviour === undefined;
+  }
 
   setupBehaviours(): void {
     // If the player has the ball, just need to follow them
@@ -20,9 +27,17 @@ export class FollowGoal extends DogGoal {
         new DropBehaviour(this.dog)
       );
     }
+
+    this.currentBehaviour = this.behaviours.shift();
+
+    console.log("starting follow goal");
   }
 
   update(dt: number): void {
-    throw new Error("Method not implemented.");
+    this.currentBehaviour?.update(dt);
+
+    if (this.currentBehaviour?.canFinish()) {
+      this.currentBehaviour = this.behaviours.shift();
+    }
   }
 }

@@ -5,6 +5,9 @@ import { Ball, BallState } from "../ball";
 import { buildDog } from "./dog-builder";
 import { DogGoal } from "./goals/dog-goal";
 import { WaitGoal } from "./goals/wait-goal";
+import { ReturnGoal } from "./goals/return-goal";
+import { FetchGoal } from "./goals/fetch-goal";
+import { FollowGoal } from "./goals/follow-goal";
 
 export class NewDog extends THREE.Object3D {
   animator: DogAnimator;
@@ -35,6 +38,7 @@ export class NewDog extends THREE.Object3D {
     // Dog starts off sitting
     this.animator.play(AnimationAsset.Sitting);
     this.currentGoal = new WaitGoal(this);
+    this.currentGoal.setupBehaviours();
   }
 
   get moveSpeed() {
@@ -48,34 +52,35 @@ export class NewDog extends THREE.Object3D {
   update(dt: number) {
     this.animator.update(dt);
 
+    // Always be looking for the next goal
+    const nextGoal = this.getNextGoal();
+
+    // If it's different, and the current goal is done, change it
+    if (
+      nextGoal.name !== this.currentGoal.name &&
+      this.currentGoal.canFinish()
+    ) {
+      this.currentGoal = nextGoal;
+      this.currentGoal.setupBehaviours();
+    }
+
+    // Update the current goal
     this.currentGoal.update(dt);
   }
 
-  private getBestGoal() {
-    switch (this.ball.state) {
-      case BallState.AtRest:
-        if (this.playerNearby()) {
-          // Wait
-        } else {
-          // Follow
-        }
-        break;
-      case BallState.WithPlayer:
-        if (this.playerNearby()) {
-          // Wait
-        } else {
-          // Follow
-        }
-        break;
-      case BallState.Thrown:
-        // Fetch
-        break;
-      case BallState.WithDog:
-      // Return
-    }
+  private getNextGoal() {
+    // Easy ones - always return after fetch and wait after return
+    if (this.currentGoal.name === "fetch") return new ReturnGoal(this);
+    if (this.currentGoal.name === "return") return new WaitGoal(this);
+
+    // If the ball has been thrown, go get it
+    if (this.ball.state === BallState.Thrown) return new FetchGoal(this);
+
+    // Otherwise wait or follow player if they've moved away
+    return this.playerNearby() ? new WaitGoal(this) : new FollowGoal(this);
   }
 
   private playerNearby() {
-    return this.position.distanceTo(this.camera.position) <= 3;
+    return this.position.distanceTo(this.camera.position) <= 6;
   }
 }
