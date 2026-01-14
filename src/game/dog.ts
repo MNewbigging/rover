@@ -148,10 +148,10 @@ export class Dog extends THREE.Object3D {
     // If close enough to ball and not already in the process of grabbing it
     if (
       this.isCloseEnoughToBall() &&
-      !this.isCurrentAnimation(AnimationAsset.HeadDown)
+      !this.isCurrentAnimation(AnimationAsset.HeadDownStanding)
     ) {
       // Play head down animation, then pickup ball
-      await this.tilAnimFinish(AnimationAsset.HeadDown);
+      await this.tilAnimFinish(AnimationAsset.HeadDownStanding);
       this.pickupBall();
       this.state = DogState.Returning;
       return;
@@ -256,7 +256,7 @@ export class Dog extends THREE.Object3D {
       case AnimationAsset.StandToSit:
         this.playAnimation(AnimationAsset.Sitting);
         break;
-      case AnimationAsset.HeadDown:
+      case AnimationAsset.HeadDownStanding:
         // After head down, dog should be holding the ball now, so stand up
         this.playAnimation(AnimationAsset.Standing);
         break;
@@ -280,7 +280,7 @@ export class Dog extends THREE.Object3D {
       loopOnce: true,
       clampWhenFinished: true,
     });
-    this.createActionFor(AnimationAsset.HeadDown, {
+    this.createActionFor(AnimationAsset.HeadDownStanding, {
       loopOnce: true,
       clampWhenFinished: true,
     });

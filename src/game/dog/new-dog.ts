@@ -12,6 +12,9 @@ export class NewDog extends THREE.Object3D {
 
   currentBehaviour: DogBehaviour;
 
+  jawBone?: THREE.Object3D;
+  readonly ballHoldPosition = new THREE.Vector3(0, -5, 15);
+
   constructor(
     public ball: Ball,
     public camera: THREE.PerspectiveCamera,
@@ -25,6 +28,10 @@ export class NewDog extends THREE.Object3D {
     );
     this.animator = new DogAnimator(assetManager, dogModel);
     this.add(dogModel);
+
+    // Get a reference to the jaw bone for holding the ball
+    const boneParent = dogModel.children[1];
+    this.jawBone = boneParent.getObjectByName("jaw_C0_0_joint"); // might not work with other dog types
 
     // Manually setup first behaviour
     this.currentBehaviour = new WaitingBehaviour(this);
@@ -42,10 +49,7 @@ export class NewDog extends THREE.Object3D {
   update(dt: number) {
     this.animator.update(dt);
 
-    if (
-      this.currentBehaviour.shouldFinish() &&
-      this.currentBehaviour.canFinish()
-    ) {
+    if (this.currentBehaviour.canFinish()) {
       const nextBehaviourName = this.currentBehaviour.getNextBehaviourName();
       const nextBehaviour = this.getNextBehaviour(nextBehaviourName);
       if (nextBehaviour) {

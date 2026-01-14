@@ -5,21 +5,16 @@ import { DogBehaviour, DogBehaviourName } from "./dog-behaviour";
 export class FollowWithoutBallBehaviour extends DogBehaviour {
   name = DogBehaviourName.FollowWithoutBall;
 
-  onStart() {
+  async onStart() {
     this.dog.animator.play(AnimationAsset.Walking);
   }
 
-  shouldFinish(): boolean {
+  canFinish(): boolean {
     // If player is close enough or has thrown the ball
     return (
       this.dog.position.distanceTo(this.dog.camera.position) <= 3 ||
       this.dog.ball.wasThrown
     );
-  }
-
-  canFinish(): boolean {
-    // Can finish at any time (providing it SHOULD finish!)
-    return true;
   }
 
   onFinish() {

@@ -5,18 +5,16 @@ import { DogBehaviour, DogBehaviourName } from "./dog-behaviour";
 export class WaitingBehaviour extends DogBehaviour {
   name = DogBehaviourName.Waiting;
 
-  shouldFinish() {
+  canFinish() {
+    // Cannot finish if currently in a transition animation
+    if (this.dog.animator.currentAnimation === AnimationAsset.SitToStand)
+      return false;
+
     // If the player moves far enough away or throws the ball
     return (
       this.dog.position.distanceTo(this.dog.camera.position) > 6 ||
       this.dog.ball.wasThrown
     );
-  }
-
-  canFinish() {
-    // Cannot end during a transition animation
-    const anim = this.dog.animator.currentAnimation;
-    return anim !== AnimationAsset.SitToStand;
   }
 
   getNextBehaviourName(): DogBehaviourName {

@@ -12,7 +12,8 @@ export enum AnimationAsset {
   Running = "_POLYGON_Dog_Locomotion_Running.fbx",
   RunningJump = "_POLYGON_Dog_Locomotion_Jump_Running.fbx",
   Falling = "_POLYGON_Dog_Locomotion_Falling.fbx",
-  HeadDown = "_POLYGON_Dog_Head_Standing_Down.fbx",
+  HeadDownStanding = "_POLYGON_Dog_Head_Standing_Down.fbx",
+  HeadDownSitting = "_POLYGON_Dog_Head_Sitting_Down.fbx",
   Walking = "_POLYGON_Dog_Locomotion_Walking.fbx",
 }
 

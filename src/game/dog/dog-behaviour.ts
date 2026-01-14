@@ -6,6 +6,7 @@ export enum DogBehaviourName {
   FollowWithBall,
   Fetching, // Can move into returning
   Returning, // Can move into waiting
+  PickupBall,
 }
 
 export abstract class DogBehaviour {
@@ -14,11 +15,10 @@ export abstract class DogBehaviour {
   constructor(protected dog: NewDog) {}
 
   // Optional
-  onStart() {}
+  async onStart() {}
   onFinish() {}
 
-  abstract shouldFinish(): boolean;
-  abstract canFinish(): boolean; // ready to move to new behaviour?
+  abstract canFinish(): boolean;
   abstract getNextBehaviourName(): DogBehaviourName;
   abstract update(dt: number): void;
 }

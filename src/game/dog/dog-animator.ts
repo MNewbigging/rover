@@ -90,10 +90,13 @@ export class DogAnimator {
       case AnimationAsset.StandToSit:
         this.play(AnimationAsset.Sitting);
         break;
-      case AnimationAsset.HeadDown:
+      case AnimationAsset.HeadDownStanding:
         // todo should probably play this anim in reverse so head doesn't snap (or do a better fadeDuration?)
         // After head down, dog should be holding the ball now, so stand up
         this.play(AnimationAsset.Standing);
+        break;
+      case AnimationAsset.HeadDownSitting:
+        this.play(AnimationAsset.Sitting);
         break;
     }
   };
@@ -115,7 +118,11 @@ export class DogAnimator {
       loopOnce: true,
       clampWhenFinished: true,
     });
-    this.createActionFor(AnimationAsset.HeadDown, {
+    this.createActionFor(AnimationAsset.HeadDownStanding, {
+      loopOnce: true,
+      clampWhenFinished: true,
+    });
+    this.createActionFor(AnimationAsset.HeadDownSitting, {
       loopOnce: true,
       clampWhenFinished: true,
     });
