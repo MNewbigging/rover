@@ -41,7 +41,11 @@ export class Dog extends THREE.Object3D {
     this.setupAnimations();
     this.mixer.addEventListener("finished", this.onFinishAnimation);
 
-    this.playAnimation(AnimationAsset.Sitting);
+    this.playAnimation(AnimationAsset.Standing);
+
+    setTimeout(() => {
+      this.playAnimation(AnimationAsset.HeadDown);
+    }, 1000);
 
     // Get a reference to the jaw bone for later use
     const boneParent = dogs.children[1];
@@ -231,6 +235,10 @@ export class Dog extends THREE.Object3D {
       clampWhenFinished: true,
     });
     this.createActionFor(AnimationAsset.StandToSit, {
+      loopOnce: true,
+      clampWhenFinished: true,
+    });
+    this.createActionFor(AnimationAsset.HeadDown, {
       loopOnce: true,
       clampWhenFinished: true,
     });
