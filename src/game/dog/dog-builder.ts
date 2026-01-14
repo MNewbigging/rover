@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { AssetManager, ModelAsset } from "./asset-manager";
+import { AssetManager, ModelAsset } from "../asset-manager";
 
 export function buildDog(name: string, assetManager: AssetManager) {
   const dogs = assetManager.getModel(ModelAsset.DOGS);

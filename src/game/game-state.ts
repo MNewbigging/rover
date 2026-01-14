@@ -5,7 +5,7 @@ import { RenderPipeline } from "./render-pipeline";
 import { AssetManager } from "./asset-manager";
 import { Dog } from "./dog";
 import { KeyboardListener } from "../listeners/keyboard-listener";
-import { Ball } from "./ball";
+import { Ball, BallState } from "./ball";
 import { Ground } from "./ground";
 import { NewDog } from "./dog/new-dog";
 
@@ -54,7 +54,7 @@ export class GameState {
     this.ball.position = { x: 0, y: 1, z: 0.3 };
 
     // Doggo
-    this.dog = new NewDog(this.ball, this.camera, assetManager);
+    this.dog = new NewDog(this.ball, this.camera, this.scene, assetManager);
     this.scene.add(this.dog);
 
     // Physics
@@ -146,7 +146,7 @@ export class GameState {
 
   private onClick = (e: MouseEvent) => {
     if (!isLeftClick(e)) return;
-    if (this.ball.playerHasBall) return;
+    if (this.ball.state === BallState.WithPlayer) return;
     if (!this.isLookingAtBall()) return;
     if (!this.isCloseEnoughToPickupBall()) return;
 
@@ -164,19 +164,19 @@ export class GameState {
     ballMesh.position.set(0.3, 0, -1);
 
     // Now holding the ball ( this flag allows throwing logic )
-    this.ball.playerHasBall = true;
+    this.ball.state = BallState.WithPlayer;
   }
 
   private onMouseDown = (e: MouseEvent) => {
     if (!isLeftClick(e)) return;
-    if (!this.ball.playerHasBall) return;
+    if (this.ball.state !== BallState.WithPlayer) return;
 
     // todo start tracking force to apply to throw
   };
 
   private onMouseUp = (e: MouseEvent) => {
     if (!isLeftClick(e)) return;
-    if (!this.ball.playerHasBall) return;
+    if (this.ball.state !== BallState.WithPlayer) return;
 
     this.throwBall();
   };
@@ -207,7 +207,7 @@ export class GameState {
 
     // No longer holding it; update ball with physics props
     this.ball.restartPhysics();
-    this.ball.playerHasBall = false;
+    this.ball.state = BallState.Thrown;
   };
 }
 

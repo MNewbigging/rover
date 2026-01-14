@@ -2,9 +2,15 @@ import * as CANNON from "cannon-es";
 import { PhysicsObject } from "./physics-object";
 import { AssetManager, ModelAsset, TextureAsset } from "./asset-manager";
 
+export enum BallState {
+  WithPlayer,
+  WithDog,
+  Thrown,
+  AtRest,
+}
+
 export class Ball extends PhysicsObject {
-  playerHasBall = false;
-  wasThrown = false;
+  state: BallState = BallState.AtRest;
 
   constructor(
     protected physicsWorld: CANNON.World,

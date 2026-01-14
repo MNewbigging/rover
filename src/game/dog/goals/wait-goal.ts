@@ -15,9 +15,12 @@ export class WaitGoal extends DogGoal {
     } else if (anim === AnimationAsset.Standing) {
       this.behaviours.push(new WaitStandBehaviour(this.dog));
     }
+
+    this.currentBehaviour = this.behaviours.shift();
   }
 
   update(dt: number): void {
-    // If the behaviour would change (sit to stand) then what?
+    // todo If the behaviour would change (sit to stand) then what?
+    this.currentBehaviour?.update(dt);
   }
 }

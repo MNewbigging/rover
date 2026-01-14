@@ -1,3 +1,4 @@
+import { BallState } from "../../ball";
 import { DogBehaviour } from "../behaviours/dog-behaviour";
 import { DropBehaviour } from "../behaviours/drop-behaviour";
 import { MoveToPlayerBehaviour } from "../behaviours/move-to-player-behaviour";
@@ -9,7 +10,7 @@ export class FollowGoal extends DogGoal {
 
   setupBehaviours(): void {
     // If the player has the ball, just need to follow them
-    if (this.dog.ball.playerHasBall) {
+    if (this.dog.ball.state === BallState.WithPlayer) {
       this.behaviours.push(new MoveToPlayerBehaviour(this.dog));
     } else {
       // Otherwise, need to pickup then follow then drop!

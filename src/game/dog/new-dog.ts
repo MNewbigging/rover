@@ -1,13 +1,17 @@
 import * as THREE from "three";
 import { DogAnimator } from "./dog-animator";
 import { AnimationAsset, AssetManager } from "../asset-manager";
-import { Ball } from "../ball";
+import { Ball, BallState } from "../ball";
 import { buildDog } from "./dog-builder";
+import { DogGoal } from "./goals/dog-goal";
+import { WaitGoal } from "./goals/wait-goal";
 
 export class NewDog extends THREE.Object3D {
   animator: DogAnimator;
   jawBone?: THREE.Object3D;
   readonly ballHoldPosition = new THREE.Vector3(0, -5, 15);
+
+  currentGoal: DogGoal;
 
   constructor(
     public ball: Ball,
@@ -30,6 +34,7 @@ export class NewDog extends THREE.Object3D {
 
     // Dog starts off sitting
     this.animator.play(AnimationAsset.Sitting);
+    this.currentGoal = new WaitGoal(this);
   }
 
   get moveSpeed() {
@@ -42,5 +47,35 @@ export class NewDog extends THREE.Object3D {
 
   update(dt: number) {
     this.animator.update(dt);
+
+    this.currentGoal.update(dt);
+  }
+
+  private getBestGoal() {
+    switch (this.ball.state) {
+      case BallState.AtRest:
+        if (this.playerNearby()) {
+          // Wait
+        } else {
+          // Follow
+        }
+        break;
+      case BallState.WithPlayer:
+        if (this.playerNearby()) {
+          // Wait
+        } else {
+          // Follow
+        }
+        break;
+      case BallState.Thrown:
+        // Fetch
+        break;
+      case BallState.WithDog:
+      // Return
+    }
+  }
+
+  private playerNearby() {
+    return this.position.distanceTo(this.camera.position) <= 3;
   }
 }
