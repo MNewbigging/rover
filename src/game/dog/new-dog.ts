@@ -5,7 +5,7 @@ import { buildDog } from "../dog-builder";
 import { Ball } from "../ball";
 import { DogBehaviour, DogBehaviourName } from "./dog-behaviour";
 import { WaitingBehaviour } from "./waiting-behaviour";
-import { FollowWithoutBallBehaviour } from "./follow-without-ball-behaviour";
+import { FollowBehaviour } from "./follow-without-ball-behaviour";
 
 export class NewDog extends THREE.Object3D {
   animator: DogAnimator;
@@ -69,7 +69,7 @@ export class NewDog extends THREE.Object3D {
       case DogBehaviourName.FollowWithBall:
         break;
       case DogBehaviourName.FollowWithoutBall:
-        return new FollowWithoutBallBehaviour(this);
+        return new FollowBehaviour(this);
       case DogBehaviourName.Returning:
         break;
       case DogBehaviourName.Waiting:

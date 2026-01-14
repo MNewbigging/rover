@@ -4,6 +4,10 @@ import { DogBehaviour, DogBehaviourName } from "./dog-behaviour";
 // Dog will stand, pick up ball, walk after player
 export class FollowWithBallBehaviour extends DogBehaviour {
   name = DogBehaviourName.FollowWithBall;
+  subBehaviours: DogBehaviourName[] = [
+    DogBehaviourName.PickupBall,
+    //
+  ];
 
   shouldFinish(): boolean {
     // If dog has dropped the ball

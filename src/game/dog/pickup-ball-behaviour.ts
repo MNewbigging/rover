@@ -6,6 +6,8 @@ import { DogBehaviour, DogBehaviourName } from "./dog-behaviour";
 export class PickupBallBehaviour extends DogBehaviour {
   name = DogBehaviourName.PickupBall;
 
+  private pickedUpBall = false;
+
   async onStart() {
     const anim = this.dog.animator.currentAnimation;
     if (anim === AnimationAsset.Sitting) {
@@ -15,14 +17,16 @@ export class PickupBallBehaviour extends DogBehaviour {
   }
 
   canFinish(): boolean {
-    // When no longer performing head down anim
-    return (
-      this.dog.animator.currentAnimation !== AnimationAsset.HeadDownSitting
-    );
+    // Once ball pickup below has finished
+    return this.pickedUpBall;
   }
 
   getNextBehaviourName(): DogBehaviourName {
-    throw new Error("Method not implemented.");
+    // Can either go into a follow with ball or return with ball - but how do we know?
+    // Should this be a sub-behavour?
+
+    // note this isn't used right now
+    return DogBehaviourName.FollowWithBall;
   }
 
   update(dt: number): void {
@@ -38,5 +42,7 @@ export class PickupBallBehaviour extends DogBehaviour {
     this.dog.jawBone?.add(ball.renderComponent);
     ball.renderComponent.position.copy(this.dog.ballHoldPosition);
     ball.renderComponent.scale.multiplyScalar(100); // because dog scale is 0.01
+
+    this.pickedUpBall;
   }
 }

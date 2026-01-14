@@ -2,8 +2,8 @@ import { AnimationAsset } from "../asset-manager";
 import { DogBehaviour, DogBehaviourName } from "./dog-behaviour";
 
 // If player has picked up ball and moved away. Starts with dog Standing
-export class FollowWithoutBallBehaviour extends DogBehaviour {
-  name = DogBehaviourName.FollowWithoutBall;
+export class FollowBehaviour extends DogBehaviour {
+  name = DogBehaviourName.FollowPlayer;
 
   async onStart() {
     this.dog.animator.play(AnimationAsset.Walking);

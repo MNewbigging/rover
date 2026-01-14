@@ -7,10 +7,13 @@ export enum DogBehaviourName {
   Fetching, // Can move into returning
   Returning, // Can move into waiting
   PickupBall,
+  FollowPlayer,
 }
 
 export abstract class DogBehaviour {
   abstract name: DogBehaviourName;
+
+  subBehaviours: DogBehaviourName[] = [];
 
   constructor(protected dog: NewDog) {}
 
