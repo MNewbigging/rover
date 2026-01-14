@@ -47,6 +47,22 @@ export class Dog extends THREE.Object3D {
     this.jawBone = boneParent.getObjectByName("jaw_C0_0_joint"); // might not work with other dog types
   }
 
+  tilAnimFinish(name: AnimationAsset) {
+    return new Promise<void>((resolve) => {
+      const onFinish = (event: { action: THREE.AnimationAction }) => {
+        if (event.action.getClip().name !== name) return;
+
+        this.mixer.removeEventListener("finished", onFinish);
+
+        resolve();
+      };
+
+      this.mixer.addEventListener("finished", onFinish);
+
+      this.playAnimation(name);
+    });
+  }
+
   isCurrentAnimation(name: AnimationAsset) {
     return this.currentAction?.getClip().name === name;
   }
@@ -129,9 +145,14 @@ export class Dog extends THREE.Object3D {
     // TODO stand, pickup ball, walk after player, drop ball, sit and wait
   }
 
-  private fetchBall(dt: number) {
-    // If close enough to ball, grab it & can start to return
-    if (this.isCloseEnoughToBall()) {
+  private async fetchBall(dt: number) {
+    // If close enough to ball and not already in the process of grabbing it
+    if (
+      this.isCloseEnoughToBall() &&
+      !this.isCurrentAnimation(AnimationAsset.HeadDown)
+    ) {
+      // Play head down animation, then pickup ball
+      await this.tilAnimFinish(AnimationAsset.HeadDown);
       this.pickupBall();
       this.state = DogState.Returning;
       return;
@@ -235,6 +256,10 @@ export class Dog extends THREE.Object3D {
         break;
       case AnimationAsset.StandToSit:
         this.playAnimation(AnimationAsset.Sitting);
+        break;
+      case AnimationAsset.HeadDown:
+        // After head down, dog should be holding the ball now, so stand up
+        this.playAnimation(AnimationAsset.Standing);
         break;
     }
   };
