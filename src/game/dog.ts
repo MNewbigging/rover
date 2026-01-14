@@ -16,7 +16,6 @@ export class Dog extends THREE.Object3D {
   private currentAction?: THREE.AnimationAction;
 
   private state: DogState = DogState.Waiting;
-  private moveSpeed = 3;
 
   private jawBone?: THREE.Object3D;
   private readonly ballHoldPosition = new THREE.Vector3(0, -5, 15);
@@ -41,19 +40,27 @@ export class Dog extends THREE.Object3D {
     this.setupAnimations();
     this.mixer.addEventListener("finished", this.onFinishAnimation);
 
-    this.playAnimation(AnimationAsset.Standing);
+    this.playAnimation(AnimationAsset.Sitting);
 
-    setTimeout(() => {
-      this.playAnimation(AnimationAsset.HeadDown);
-    }, 1000);
-
-    // Get a reference to the jaw bone for later use
+    // Get a reference to the jaw bone for holding the ball
     const boneParent = dogs.children[1];
     this.jawBone = boneParent.getObjectByName("jaw_C0_0_joint"); // might not work with other dog types
   }
 
   isCurrentAnimation(name: AnimationAsset) {
     return this.currentAction?.getClip().name === name;
+  }
+
+  get currentAnimation() {
+    return this.currentAction?.getClip().name;
+  }
+
+  get moveSpeed() {
+    // Depends on current animation
+    if (this.isCurrentAnimation(AnimationAsset.Walking)) return 2.5;
+    if (this.isCurrentAnimation(AnimationAsset.Running)) return 5;
+
+    return 3;
   }
 
   playAnimation(name: AnimationAsset, fadeDuration: number = 0.25) {
@@ -99,7 +106,7 @@ export class Dog extends THREE.Object3D {
         this.followPlayer();
         break;
       case DogState.Fetching:
-        this.runTowardsBall(dt);
+        this.fetchBall(dt);
         break;
       case DogState.Returning:
         this.returnWithBall(dt);
@@ -111,7 +118,7 @@ export class Dog extends THREE.Object3D {
     // TODO Randomly perform some animations / sfx
 
     // TODO see if I can only change anim as/when rather than every frame...
-    if (this.isCurrentAnimation(AnimationAsset.Running)) {
+    if (this.isCurrentAnimation(AnimationAsset.Walking)) {
       this.playAnimation(AnimationAsset.StandToSit);
     }
 
@@ -122,7 +129,7 @@ export class Dog extends THREE.Object3D {
     // TODO stand, pickup ball, walk after player, drop ball, sit and wait
   }
 
-  private runTowardsBall(dt: number) {
+  private fetchBall(dt: number) {
     // If close enough to ball, grab it & can start to return
     if (this.isCloseEnoughToBall()) {
       this.pickupBall();
@@ -130,12 +137,17 @@ export class Dog extends THREE.Object3D {
       return;
     }
 
-    // Need to stand up if sitting, or run if already standing
-    if (this.isCurrentAnimation(AnimationAsset.Sitting)) {
-      // When this finishes, standing will automatically start
-      this.playAnimation(AnimationAsset.SitToStand);
-    } else if (this.isCurrentAnimation(AnimationAsset.Standing)) {
-      this.playAnimation(AnimationAsset.Running);
+    switch (this.currentAnimation) {
+      case AnimationAsset.Sitting:
+        this.playAnimation(AnimationAsset.SitToStand);
+        break;
+      case AnimationAsset.Standing:
+        this.playAnimation(AnimationAsset.Walking);
+        break;
+      case AnimationAsset.Walking:
+        // If ball is far enough, start running
+        // Must make sure the walk anim has looped at least once before switching to run
+        break;
     }
 
     // Move towards the ball
@@ -164,8 +176,7 @@ export class Dog extends THREE.Object3D {
       return;
     }
 
-    // Should be running
-    this.playAnimation(AnimationAsset.Running);
+    this.playAnimation(AnimationAsset.Walking);
 
     // TODO start walking when close enough, then drop
     this.moveTowardsPosition(this.camera.position, dt);
@@ -191,9 +202,15 @@ export class Dog extends THREE.Object3D {
     this.ball.restartPhysics();
   }
 
+  private canMove() {
+    return (
+      this.currentAnimation === AnimationAsset.Walking ||
+      this.currentAnimation === AnimationAsset.Running
+    );
+  }
+
   private moveTowardsPosition(position: THREE.Vector3, dt: number) {
-    // Can only move towards ball if running
-    if (!this.isCurrentAnimation(AnimationAsset.Running)) return;
+    if (!this.canMove()) return;
 
     const direction = position.clone().sub(this.position).normalize();
     const nextPos = this.position
@@ -212,12 +229,13 @@ export class Dog extends THREE.Object3D {
     // This makes sure the right loop anim is played after the corresponding transition anim
     const name = event.action.getClip().name;
 
-    if (name === AnimationAsset.SitToStand) {
-      this.playAnimation(AnimationAsset.Standing);
-    }
-
-    if (name === AnimationAsset.StandToSit) {
-      this.playAnimation(AnimationAsset.Sitting);
+    switch (name) {
+      case AnimationAsset.SitToStand:
+        this.playAnimation(AnimationAsset.Standing);
+        break;
+      case AnimationAsset.StandToSit:
+        this.playAnimation(AnimationAsset.Sitting);
+        break;
     }
   };
 
@@ -242,6 +260,7 @@ export class Dog extends THREE.Object3D {
       loopOnce: true,
       clampWhenFinished: true,
     });
+    this.createActionFor(AnimationAsset.Walking, { ignoreRootMotion: true });
   }
 
   private createActionFor(
