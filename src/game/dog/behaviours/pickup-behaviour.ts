@@ -1,11 +1,7 @@
-import { AnimationAsset } from "../asset-manager";
-import { DogBehaviour, DogBehaviourName } from "./dog-behaviour";
+import { AnimationAsset } from "../../asset-manager";
+import { DogBehaviour } from "./dog-behaviour";
 
-// Might come from sitting, walking, running etc
-// Needs to play head down anim, attach ball to dog
-export class PickupBallBehaviour extends DogBehaviour {
-  name = DogBehaviourName.PickupBall;
-
+export class PickupBehaviour extends DogBehaviour {
   private pickedUpBall = false;
 
   async onStart() {
@@ -13,20 +9,15 @@ export class PickupBallBehaviour extends DogBehaviour {
     if (anim === AnimationAsset.Sitting) {
       await this.dog.animator.playUntilFInish(AnimationAsset.HeadDownSitting);
       this.pickupBall();
+    } else {
+      await this.dog.animator.playUntilFInish(AnimationAsset.HeadDownStanding);
+      this.pickupBall();
     }
   }
 
   canFinish(): boolean {
     // Once ball pickup below has finished
     return this.pickedUpBall;
-  }
-
-  getNextBehaviourName(): DogBehaviourName {
-    // Can either go into a follow with ball or return with ball - but how do we know?
-    // Should this be a sub-behavour?
-
-    // note this isn't used right now
-    return DogBehaviourName.FollowWithBall;
   }
 
   update(dt: number): void {

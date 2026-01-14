@@ -1,17 +1,19 @@
+import { DogBehaviour } from "../behaviours/dog-behaviour";
+import { NewDog } from "../new-dog";
+
 // A goal is just a container for behaviours
 // Each goal constructs a list of sub-behaviours to follow through with
-// The sub-behaviours may be different for the same goal at different times
-
-import { AnimationAsset } from "../asset-manager";
-import { DogBehaviour } from "./dog-behaviour";
-import { NewDog } from "./new-dog";
+// The sub-behaviours may be different for the same goal at different times:
 
 /**
  * GOALS and BEHAVIOURS
  *
  * Goal: Wait (while near player)
  * - B: Sit and perform random 1-shots
+ * OR
  * - B: Stand and perform random 1-shots (after player picks up ball)
+ * BUT
+ *  - might change whilst waiting
  *
  * Goal: Follow (once player is far enough away)
  * - B: Pickup Ball (from sit) (if ball neaby)
@@ -29,28 +31,12 @@ import { NewDog } from "./new-dog";
  * - B: Drop Ball & Sit
  */
 
-enum NewBehaviours {
-  WaitSit,
-  WaitStand,
-  Pickup,
-  FollowPlayer,
-  DropSit,
-  Fetch,
-}
-
 export abstract class DogGoal {
   abstract behaviours: DogBehaviour[];
 
   constructor(public dog: NewDog) {}
-}
 
-class WaitGoal extends DogGoal {
-  behaviours: DogBehaviour[] = [];
+  abstract setupBehaviours(): void;
 
-  setup() {
-    // Waiting depends on current animation state
-    const anim = this.dog.animator.currentAnimation;
-    if (anim === AnimationAsset.Sitting) {
-    }
-  }
+  abstract update(dt: number): void;
 }
