@@ -5,6 +5,7 @@ import { buildDog } from "../dog-builder";
 import { Ball } from "../ball";
 import { DogBehaviour, DogBehaviourName } from "./dog-behaviour";
 import { WaitingBehaviour } from "./waiting-behaviour";
+import { FollowWithoutBallBehaviour } from "./follow-without-ball-behaviour";
 
 export class NewDog extends THREE.Object3D {
   animator: DogAnimator;
@@ -46,7 +47,12 @@ export class NewDog extends THREE.Object3D {
       this.currentBehaviour.canFinish()
     ) {
       const nextBehaviourName = this.currentBehaviour.getNextBehaviourName();
-      // this.currentBehaviour = this.getNextBehaviour(nextBehaviourName);
+      const nextBehaviour = this.getNextBehaviour(nextBehaviourName);
+      if (nextBehaviour) {
+        this.currentBehaviour.onFinish();
+        this.currentBehaviour = nextBehaviour;
+        this.currentBehaviour.onStart();
+      }
     } else {
       this.currentBehaviour.update(dt);
     }
@@ -59,7 +65,7 @@ export class NewDog extends THREE.Object3D {
       case DogBehaviourName.FollowWithBall:
         break;
       case DogBehaviourName.FollowWithoutBall:
-        break;
+        return new FollowWithoutBallBehaviour(this);
       case DogBehaviourName.Returning:
         break;
       case DogBehaviourName.Waiting:

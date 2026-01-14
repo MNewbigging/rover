@@ -8,7 +8,7 @@ export class WaitingBehaviour extends DogBehaviour {
   shouldFinish() {
     // If the player moves far enough away or throws the ball
     return (
-      this.dog.position.distanceTo(this.dog.camera.position) > 5 ||
+      this.dog.position.distanceTo(this.dog.camera.position) > 6 ||
       this.dog.ball.wasThrown
     );
   }

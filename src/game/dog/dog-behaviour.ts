@@ -13,6 +13,10 @@ export abstract class DogBehaviour {
 
   constructor(protected dog: NewDog) {}
 
+  // Optional
+  onStart() {}
+  onFinish() {}
+
   abstract shouldFinish(): boolean;
   abstract canFinish(): boolean; // ready to move to new behaviour?
   abstract getNextBehaviourName(): DogBehaviourName;

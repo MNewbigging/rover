@@ -12,13 +12,13 @@ export class FollowWithoutBallBehaviour extends DogBehaviour {
   shouldFinish(): boolean {
     // If player is close enough or has thrown the ball
     return (
-      this.dog.position.distanceTo(this.dog.camera.position) <= 5 ||
+      this.dog.position.distanceTo(this.dog.camera.position) <= 3 ||
       this.dog.ball.wasThrown
     );
   }
 
   canFinish(): boolean {
-    // Can finish at any time
+    // Can finish at any time (providing it SHOULD finish!)
     return true;
   }
 
