@@ -3,6 +3,9 @@ import { PhysicsObject } from "./physics-object";
 import { AssetManager, ModelAsset, TextureAsset } from "./asset-manager";
 
 export class Ball extends PhysicsObject {
+  playerHasBall = false;
+  wasThrown = false;
+
   constructor(
     protected physicsWorld: CANNON.World,
     assetManager: AssetManager

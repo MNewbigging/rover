@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { AnimationAsset, AssetManager } from "./asset-manager";
+import { AnimationAsset, AssetManager } from "../asset-manager";
 
 export class DogAnimator {
   private mixer: THREE.AnimationMixer;
@@ -26,12 +26,29 @@ export class DogAnimator {
         if (event.action.getClip().name !== name) return;
 
         this.mixer.removeEventListener("finished", onFinish);
-
         resolve();
       };
 
       this.mixer.addEventListener("finished", onFinish);
+      this.play(name);
+    });
+  }
 
+  playForLoops(name: AnimationAsset, loopCount: number) {
+    return new Promise<void>((resolve) => {
+      let loops = 0;
+
+      const onLoop = (event: { action: THREE.AnimationAction }) => {
+        if (event.action.getClip().name !== name) return;
+
+        loops++;
+        if (loops === loopCount) {
+          this.mixer.removeEventListener("loop", onLoop);
+          resolve();
+        }
+      };
+
+      this.mixer.addEventListener("loop", onLoop);
       this.play(name);
     });
   }
@@ -74,6 +91,7 @@ export class DogAnimator {
         this.play(AnimationAsset.Sitting);
         break;
       case AnimationAsset.HeadDown:
+        // todo should probably play this anim in reverse so head doesn't snap (or do a better fadeDuration?)
         // After head down, dog should be holding the ball now, so stand up
         this.play(AnimationAsset.Standing);
         break;

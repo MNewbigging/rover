@@ -18,7 +18,6 @@ export class GameState {
   private raycaster = new THREE.Raycaster();
 
   private moveSpeed = 2;
-  private holdingBall = false;
   private dog: Dog;
   private ground: Ground;
   private ball: Ball;
@@ -146,7 +145,7 @@ export class GameState {
 
   private onClick = (e: MouseEvent) => {
     if (!isLeftClick(e)) return;
-    if (this.holdingBall) return;
+    if (this.ball.playerHasBall) return;
     if (!this.isLookingAtBall()) return;
     if (!this.isCloseEnoughToPickupBall()) return;
 
@@ -164,19 +163,19 @@ export class GameState {
     ballMesh.position.set(0.3, 0, -1);
 
     // Now holding the ball ( this flag allows throwing logic )
-    this.holdingBall = true;
+    this.ball.playerHasBall = true;
   }
 
   private onMouseDown = (e: MouseEvent) => {
     if (!isLeftClick(e)) return;
-    if (!this.holdingBall) return;
+    if (!this.ball.playerHasBall) return;
 
     this.dog.standUp();
   };
 
   private onMouseUp = (e: MouseEvent) => {
     if (!isLeftClick(e)) return;
-    if (!this.holdingBall) return;
+    if (!this.ball.playerHasBall) return;
 
     this.throwBall();
   };
@@ -207,7 +206,7 @@ export class GameState {
 
     // No longer holding it; update ball with physics props
     this.ball.restartPhysics();
-    this.holdingBall = false;
+    this.ball.playerHasBall = false;
 
     // Tell dog to fetch - might need a delay here
     this.dog.fetch();

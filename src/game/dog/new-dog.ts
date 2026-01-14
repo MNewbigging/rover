@@ -1,0 +1,83 @@
+import * as THREE from "three";
+import { DogAnimator } from "./dog-animator";
+import { AnimationAsset, AssetManager } from "../asset-manager";
+import { buildDog } from "../dog-builder";
+import { Ball } from "../ball";
+import { DogBehaviour, DogBehaviourName } from "./dog-behaviour";
+import { WaitingBehaviour } from "./waiting-behaviour";
+
+export class NewDog extends THREE.Object3D {
+  animator: DogAnimator;
+
+  currentBehaviour: DogBehaviour;
+
+  constructor(
+    public ball: Ball,
+    public camera: THREE.PerspectiveCamera,
+    assetManager: AssetManager
+  ) {
+    super();
+
+    const dogModel = buildDog(
+      "SK_Animal_Dog_GoldenRetriever_Collar_01",
+      assetManager
+    );
+    this.animator = new DogAnimator(assetManager, dogModel);
+    this.add(dogModel);
+
+    // Manually setup first behaviour
+    this.currentBehaviour = new WaitingBehaviour(this);
+    this.animator.play(AnimationAsset.Sitting);
+  }
+
+  get moveSpeed() {
+    // Depends on current animation
+    if (this.animator.isCurrentAnimation(AnimationAsset.Walking)) return 2.5;
+    if (this.animator.isCurrentAnimation(AnimationAsset.Running)) return 5;
+
+    return 3;
+  }
+
+  update(dt: number) {
+    this.animator.update(dt);
+
+    if (
+      this.currentBehaviour.shouldFinish() &&
+      this.currentBehaviour.canFinish()
+    ) {
+      const nextBehaviourName = this.currentBehaviour.getNextBehaviourName();
+      // this.currentBehaviour = this.getNextBehaviour(nextBehaviourName);
+    } else {
+      this.currentBehaviour.update(dt);
+    }
+  }
+
+  getNextBehaviour(name: DogBehaviourName) {
+    switch (name) {
+      case DogBehaviourName.Fetching:
+        break;
+      case DogBehaviourName.FollowWithBall:
+        break;
+      case DogBehaviourName.FollowWithoutBall:
+        break;
+      case DogBehaviourName.Returning:
+        break;
+      case DogBehaviourName.Waiting:
+        return new WaitingBehaviour(this);
+    }
+  }
+
+  moveTowardsPosition(position: THREE.Vector3, dt: number) {
+    const direction = position.clone().sub(this.position).normalize();
+    const nextPos = this.position
+      .clone()
+      .add(direction.multiplyScalar(this.moveSpeed * dt));
+
+    // Ensure dog stays on the floor (will move upwards when running towards camera pos)
+    nextPos.y = 0;
+
+    // TODO get the bending/turning animations working
+    this.lookAt(nextPos);
+    this.position.copy(nextPos);
+  }
+}
