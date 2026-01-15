@@ -56,14 +56,9 @@ export class NewDog extends THREE.Object3D {
     this.animator.update(dt);
 
     const nextGoalName = this.currentGoal.getNextGoalName();
-    if (nextGoalName) {
-      "next goal should be", nextGoalName;
-      if (this.currentGoal.canFinish()) {
-        this.currentGoal = this.createNextGoal(nextGoalName);
-        this.currentGoal.setupBehaviours();
-      } else {
-        ("but current goal cannot finish");
-      }
+    if (nextGoalName && this.currentGoal.canFinish()) {
+      this.currentGoal = this.createNextGoal(nextGoalName);
+      this.currentGoal.setupBehaviours();
     }
 
     this.currentGoal.update(dt);

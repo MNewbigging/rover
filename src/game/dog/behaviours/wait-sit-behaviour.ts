@@ -3,7 +3,6 @@ import { DogBehaviour } from "./dog-behaviour";
 
 export class WaitSitBehaviour extends DogBehaviour {
   async onStart() {
-    ("start wait sit behaviour");
     this.dog.animator.play(AnimationAsset.Sitting);
   }
 

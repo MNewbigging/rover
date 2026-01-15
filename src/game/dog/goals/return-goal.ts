@@ -21,7 +21,5 @@ export class ReturnGoal extends DogGoal {
       new MoveToPlayerBehaviour(AnimationAsset.Running, this.dog),
       new DropBehaviour(this.dog)
     );
-
-    ("starting return goal");
   }
 }

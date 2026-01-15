@@ -127,6 +127,7 @@ export class DogAnimator {
       clampWhenFinished: true,
     });
     this.createActionFor(AnimationAsset.Walking, { ignoreRootMotion: true });
+    this.createActionFor(AnimationAsset.TailWagSit, {});
   }
 
   private createActionFor(

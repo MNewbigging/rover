@@ -6,8 +6,6 @@ import { BallState } from "../../ball";
 // Ball is always dropped from standing-equivalent anim
 export class DropBehaviour extends DogBehaviour {
   async onStart() {
-    ("start drop behaviour");
-
     this.dropBall();
     this.dog.animator.play(AnimationAsset.StandToSit);
   }

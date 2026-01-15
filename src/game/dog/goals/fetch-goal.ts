@@ -29,7 +29,5 @@ export class FetchGoal extends DogGoal {
       new MoveToBallBehaviour(this.dog),
       new PickupBehaviour(this.dog)
     );
-
-    ("starting fetch goal");
   }
 }

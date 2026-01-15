@@ -4,8 +4,6 @@ import { DogBehaviour } from "./dog-behaviour";
 
 export class PickupBehaviour extends DogBehaviour {
   async onStart() {
-    ("start pickup behaviour");
-
     const anim = this.dog.animator.currentAnimation;
     // todo can remove, will only ever pickup from standing
     if (anim === AnimationAsset.Sitting) {
