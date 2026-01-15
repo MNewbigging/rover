@@ -95,9 +95,6 @@ export class DogAnimator {
         // After head down, dog should be holding the ball now, so stand up
         this.play(AnimationAsset.Standing);
         break;
-      case AnimationAsset.HeadDownSitting:
-        this.play(AnimationAsset.Sitting);
-        break;
       case AnimationAsset.ScratchSit:
         this.play(AnimationAsset.Sitting);
         break;
@@ -107,11 +104,6 @@ export class DogAnimator {
   private setupAnimations() {
     this.createActionFor(AnimationAsset.Sitting);
     this.createActionFor(AnimationAsset.Running, { ignoreRootMotion: true });
-    this.createActionFor(AnimationAsset.RunningJump, {
-      ignoreRootMotion: true,
-      loopOnce: true,
-      clampWhenFinished: true,
-    });
     this.createActionFor(AnimationAsset.Standing);
     this.createActionFor(AnimationAsset.SitToStand, {
       loopOnce: true,
@@ -122,10 +114,6 @@ export class DogAnimator {
       clampWhenFinished: true,
     });
     this.createActionFor(AnimationAsset.HeadDownStanding, {
-      loopOnce: true,
-      clampWhenFinished: true,
-    });
-    this.createActionFor(AnimationAsset.HeadDownSitting, {
       loopOnce: true,
       clampWhenFinished: true,
     });
