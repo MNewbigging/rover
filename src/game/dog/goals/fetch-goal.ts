@@ -30,6 +30,6 @@ export class FetchGoal extends DogGoal {
       new PickupBehaviour(this.dog)
     );
 
-    console.log("starting fetch goal");
+    ("starting fetch goal");
   }
 }

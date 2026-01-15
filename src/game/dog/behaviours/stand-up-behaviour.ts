@@ -3,7 +3,7 @@ import { DogBehaviour } from "./dog-behaviour";
 
 export class StandUpBehaviour extends DogBehaviour {
   async onStart() {
-    console.log("start stand up behaviour");
+    ("start stand up behaviour");
     // Dog is currently sitting; stand up
     this.dog.animator.play(AnimationAsset.SitToStand);
   }

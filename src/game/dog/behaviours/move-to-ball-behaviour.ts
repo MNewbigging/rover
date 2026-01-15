@@ -4,7 +4,7 @@ import { AnimationAsset } from "../../asset-manager";
 
 export class MoveToBallBehaviour extends DogBehaviour {
   async onStart() {
-    console.log("start move to ball behaviour");
+    ("start move to ball behaviour");
 
     this.dog.animator.play(AnimationAsset.Running);
   }

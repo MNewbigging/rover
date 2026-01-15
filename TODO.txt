@@ -1,7 +1,6 @@
 Todo:
-- dog fetches ball
 - pause/resumme on lose focus/lose controls lock
-
+- dog bend/turning anims
 
 
 

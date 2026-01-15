@@ -47,20 +47,23 @@ export class FollowGoal extends DogGoal {
 
     // If the player has the ball, just need to follow them
     if (this.dog.ball.state === BallState.WithPlayer) {
-      this.behaviours.push(new MoveToPlayerBehaviour(this.dog));
+      this.behaviours.push(
+        new MoveToPlayerBehaviour(AnimationAsset.Walking, this.dog)
+      );
     } else {
       // Otherwise, need to pickup then follow then drop!
       this.behaviours.push(
         new PickupBehaviour(this.dog),
-        new MoveToPlayerBehaviour(this.dog),
+        new MoveToPlayerBehaviour(AnimationAsset.Walking, this.dog),
         new DropBehaviour(this.dog)
       );
     }
-
-    console.log("starting follow goal");
   }
 
   private shouldWait() {
-    return this.dog.position.distanceTo(this.dog.camera.position) < 3;
+    return (
+      this.dog.position.distanceTo(this.dog.camera.position) <
+      this.dog.waitThreshold
+    );
   }
 }

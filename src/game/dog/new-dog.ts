@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { DogAnimator } from "./dog-animator";
 import { AnimationAsset, AssetManager } from "../asset-manager";
-import { Ball, BallState } from "../ball";
+import { Ball } from "../ball";
 import { buildDog } from "./dog-builder";
 import { DogGoal, DogGoalName } from "./goals/dog-goal";
 import { WaitGoal } from "./goals/wait-goal";
@@ -13,6 +13,9 @@ export class NewDog extends THREE.Object3D {
   animator: DogAnimator;
   jawBone?: THREE.Object3D;
   readonly ballHoldPosition = new THREE.Vector3(0, -5, 15);
+
+  readonly followThreshold = 6; // metres away from player before start to follow
+  readonly waitThreshold = 3; // metres away from player bofore start to wait
 
   currentGoal: DogGoal;
 
@@ -54,12 +57,12 @@ export class NewDog extends THREE.Object3D {
 
     const nextGoalName = this.currentGoal.getNextGoalName();
     if (nextGoalName) {
-      console.log("next goal should be", nextGoalName);
+      "next goal should be", nextGoalName;
       if (this.currentGoal.canFinish()) {
         this.currentGoal = this.createNextGoal(nextGoalName);
         this.currentGoal.setupBehaviours();
       } else {
-        console.log("but current goal cannot finish");
+        ("but current goal cannot finish");
       }
     }
 

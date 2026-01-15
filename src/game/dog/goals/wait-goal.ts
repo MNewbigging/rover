@@ -35,11 +35,12 @@ export class WaitGoal extends DogGoal {
 
     // Then wait
     this.behaviours.push(new WaitSitBehaviour(this.dog));
-
-    console.log("starting wait goal", this.behaviours);
   }
 
   private shouldFollow() {
-    return this.dog.position.distanceTo(this.dog.camera.position) > 6;
+    return (
+      this.dog.position.distanceTo(this.dog.camera.position) >
+      this.dog.followThreshold
+    );
   }
 }

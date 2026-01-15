@@ -1,3 +1,4 @@
+import { AnimationAsset } from "../../asset-manager";
 import { DogBehaviour } from "../behaviours/dog-behaviour";
 import { DropBehaviour } from "../behaviours/drop-behaviour";
 import { MoveToPlayerBehaviour } from "../behaviours/move-to-player-behaviour";
@@ -17,10 +18,10 @@ export class ReturnGoal extends DogGoal {
 
   setupBehaviours(): void {
     this.behaviours.push(
-      new MoveToPlayerBehaviour(this.dog),
+      new MoveToPlayerBehaviour(AnimationAsset.Running, this.dog),
       new DropBehaviour(this.dog)
     );
 
-    console.log("starting return goal");
+    ("starting return goal");
   }
 }
