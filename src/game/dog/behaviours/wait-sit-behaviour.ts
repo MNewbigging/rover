@@ -3,6 +3,8 @@ import { BallState } from "../../ball";
 import { DogBehaviour } from "./dog-behaviour";
 
 export class WaitSitBehaviour extends DogBehaviour {
+  private idleAnimTimer = 3;
+
   async onStart() {
     this.dog.animator.play(AnimationAsset.Sitting);
   }
@@ -15,6 +17,12 @@ export class WaitSitBehaviour extends DogBehaviour {
   update(dt: number) {
     if (this.dog.ball.state === BallState.WithPlayer) {
       this.dog.animator.play(AnimationAsset.TailWagSit);
+    } else {
+      this.idleAnimTimer -= dt;
+      if (this.idleAnimTimer <= 0) {
+        this.dog.animator.play(AnimationAsset.ScratchSit);
+        this.idleAnimTimer = 3 + Math.random() * 7;
+      }
     }
   }
 }

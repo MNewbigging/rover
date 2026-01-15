@@ -98,6 +98,9 @@ export class DogAnimator {
       case AnimationAsset.HeadDownSitting:
         this.play(AnimationAsset.Sitting);
         break;
+      case AnimationAsset.ScratchSit:
+        this.play(AnimationAsset.Sitting);
+        break;
     }
   };
 
@@ -128,6 +131,10 @@ export class DogAnimator {
     });
     this.createActionFor(AnimationAsset.Walking, { ignoreRootMotion: true });
     this.createActionFor(AnimationAsset.TailWagSit);
+    this.createActionFor(AnimationAsset.ScratchSit, {
+      loopOnce: true,
+      clampWhenFinished: true,
+    });
   }
 
   private createActionFor(
