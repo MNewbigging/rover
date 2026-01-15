@@ -20,7 +20,7 @@ export class DogAnimator {
     return this.currentAction?.getClip().name;
   }
 
-  playUntilFInish(name: AnimationAsset): Promise<void> {
+  playUntilFinish(name: AnimationAsset): Promise<void> {
     return new Promise<void>((resolve) => {
       const onFinish = (event: { action: THREE.AnimationAction }) => {
         if (event.action.getClip().name !== name) return;
