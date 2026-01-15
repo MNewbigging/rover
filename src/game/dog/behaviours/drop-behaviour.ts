@@ -1,19 +1,20 @@
 import * as THREE from "three";
 import { DogBehaviour } from "./dog-behaviour";
 import { AnimationAsset } from "../../asset-manager";
+import { BallState } from "../../ball";
 
 // Ball is always dropped from standing-equivalent anim
 export class DropBehaviour extends DogBehaviour {
-  private ballDropped = false;
-
   async onStart() {
+    console.log("start drop behaviour");
+
     this.dropBall();
     this.dog.animator.play(AnimationAsset.StandToSit);
   }
 
   canFinish(): boolean {
     return (
-      this.ballDropped &&
+      this.dog.ball.state === BallState.AtRest &&
       !this.dog.animator.isCurrentAnimation(AnimationAsset.StandToSit)
     );
   }
@@ -38,6 +39,6 @@ export class DropBehaviour extends DogBehaviour {
     );
     ball.restartPhysics();
 
-    this.ballDropped = true;
+    this.dog.ball.state = BallState.AtRest;
   }
 }

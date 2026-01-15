@@ -4,14 +4,16 @@ import { AnimationAsset } from "../../asset-manager";
 
 export class MoveToBallBehaviour extends DogBehaviour {
   async onStart() {
-    // todo what if sitting?
+    console.log("start move to ball behaviour");
 
     this.dog.animator.play(AnimationAsset.Running);
   }
 
   canFinish(): boolean {
     // Can finish when near enough ball
-    return this.dog.position.distanceTo(this.dog.ball.position) < 1;
+    return (
+      this.dog.position.distanceTo(this.dog.ball.renderComponent.position) < 1
+    );
   }
 
   update(dt: number): void {

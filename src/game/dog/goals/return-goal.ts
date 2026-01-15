@@ -8,9 +8,11 @@ export class ReturnGoal extends DogGoal {
   behaviours: DogBehaviour[] = [];
   currentBehaviour?: DogBehaviour;
 
-  canFinish(): boolean {
-    // Only once all behaviours are done can this goal finish
-    return this.behaviours.length === 0 && this.currentBehaviour === undefined;
+  getNextGoalName(): DogGoalName | undefined {
+    // If completed all behaviours can wait
+    if (this.canFinish()) return "wait";
+
+    return undefined;
   }
 
   setupBehaviours(): void {
@@ -19,16 +21,6 @@ export class ReturnGoal extends DogGoal {
       new DropBehaviour(this.dog)
     );
 
-    this.currentBehaviour = this.behaviours.shift();
-
     console.log("starting return goal");
-  }
-
-  update(dt: number): void {
-    this.currentBehaviour?.update(dt);
-
-    if (this.currentBehaviour?.canFinish()) {
-      this.currentBehaviour = this.behaviours.shift();
-    }
   }
 }

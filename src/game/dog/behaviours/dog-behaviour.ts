@@ -16,7 +16,6 @@ export abstract class DogBehaviour {
 
   // Optional
   async onStart() {}
-  onFinish() {}
 
   abstract canFinish(): boolean;
   abstract update(dt: number): void;

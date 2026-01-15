@@ -3,7 +3,7 @@ import { DogAnimator } from "./dog-animator";
 import { AnimationAsset, AssetManager } from "../asset-manager";
 import { Ball, BallState } from "../ball";
 import { buildDog } from "./dog-builder";
-import { DogGoal } from "./goals/dog-goal";
+import { DogGoal, DogGoalName } from "./goals/dog-goal";
 import { WaitGoal } from "./goals/wait-goal";
 import { ReturnGoal } from "./goals/return-goal";
 import { FetchGoal } from "./goals/fetch-goal";
@@ -52,35 +52,30 @@ export class NewDog extends THREE.Object3D {
   update(dt: number) {
     this.animator.update(dt);
 
-    // Always be looking for the next goal
-    const nextGoal = this.getNextGoal();
-
-    // If it's different, and the current goal is done, change it
-    if (
-      nextGoal.name !== this.currentGoal.name &&
-      this.currentGoal.canFinish()
-    ) {
-      this.currentGoal = nextGoal;
-      this.currentGoal.setupBehaviours();
+    const nextGoalName = this.currentGoal.getNextGoalName();
+    if (nextGoalName) {
+      console.log("next goal should be", nextGoalName);
+      if (this.currentGoal.canFinish()) {
+        this.currentGoal = this.createNextGoal(nextGoalName);
+        this.currentGoal.setupBehaviours();
+      } else {
+        console.log("but current goal cannot finish");
+      }
     }
 
-    // Update the current goal
     this.currentGoal.update(dt);
   }
 
-  private getNextGoal() {
-    // Easy ones - always return after fetch and wait after return
-    if (this.currentGoal.name === "fetch") return new ReturnGoal(this);
-    if (this.currentGoal.name === "return") return new WaitGoal(this);
-
-    // If the ball has been thrown, go get it
-    if (this.ball.state === BallState.Thrown) return new FetchGoal(this);
-
-    // Otherwise wait or follow player if they've moved away
-    return this.playerNearby() ? new WaitGoal(this) : new FollowGoal(this);
-  }
-
-  private playerNearby() {
-    return this.position.distanceTo(this.camera.position) <= 6;
+  private createNextGoal(name: DogGoalName) {
+    switch (name) {
+      case "wait":
+        return new WaitGoal(this);
+      case "follow":
+        return new FollowGoal(this);
+      case "fetch":
+        return new FetchGoal(this);
+      case "return":
+        return new ReturnGoal(this);
+    }
   }
 }

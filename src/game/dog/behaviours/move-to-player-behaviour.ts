@@ -4,11 +4,7 @@ import { AnimationAsset } from "../../asset-manager";
 
 export class MoveToPlayerBehaviour extends DogBehaviour {
   async onStart() {
-    // The dog might have been sitting if it was waiting
-    if (this.dog.animator.currentAnimation === AnimationAsset.Sitting) {
-      this.dog.animator.play(AnimationAsset.SitToStand);
-    }
-
+    console.log("start move to player behaviour");
     this.dog.animator.play(AnimationAsset.Walking);
   }
 

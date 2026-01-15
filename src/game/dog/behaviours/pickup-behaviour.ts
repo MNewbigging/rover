@@ -1,11 +1,13 @@
 import { AnimationAsset } from "../../asset-manager";
+import { BallState } from "../../ball";
 import { DogBehaviour } from "./dog-behaviour";
 
 export class PickupBehaviour extends DogBehaviour {
-  private pickedUpBall = false;
-
   async onStart() {
+    console.log("start pickup behaviour");
+
     const anim = this.dog.animator.currentAnimation;
+    // todo can remove, will only ever pickup from standing
     if (anim === AnimationAsset.Sitting) {
       await this.dog.animator.playUntilFInish(AnimationAsset.HeadDownSitting);
       this.pickupBall();
@@ -17,7 +19,7 @@ export class PickupBehaviour extends DogBehaviour {
 
   canFinish(): boolean {
     // Once ball pickup below has finished
-    return this.pickedUpBall;
+    return this.dog.ball.state === BallState.WithDog;
   }
 
   update(dt: number): void {
@@ -34,6 +36,6 @@ export class PickupBehaviour extends DogBehaviour {
     ball.renderComponent.position.copy(this.dog.ballHoldPosition);
     ball.renderComponent.scale.multiplyScalar(100); // because dog scale is 0.01
 
-    this.pickedUpBall;
+    this.dog.ball.state = BallState.WithDog;
   }
 }

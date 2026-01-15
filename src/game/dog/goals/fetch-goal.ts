@@ -8,18 +8,21 @@ export class FetchGoal extends DogGoal {
   behaviours: DogBehaviour[] = [];
   currentBehaviour?: DogBehaviour;
 
-  canFinish(): boolean {
-    // Only once all behaviours are done can this goal finish
-    return this.behaviours.length === 0 && this.currentBehaviour === undefined;
+  getNextGoalName(): DogGoalName | undefined {
+    // Can return once this goal is fully completed
+    if (this.canFinish()) return "return";
+
+    // Otherwise, continue to fetch
+    return undefined;
   }
 
   setupBehaviours(): void {
+    // Might have been waiting or following
+
     this.behaviours.push(
       new MoveToBallBehaviour(this.dog),
       new PickupBehaviour(this.dog)
     );
-
-    this.currentBehaviour = this.behaviours.shift();
 
     console.log("starting fetch goal");
   }

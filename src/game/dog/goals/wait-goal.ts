@@ -1,52 +1,45 @@
 import { AnimationAsset } from "../../asset-manager";
 import { BallState } from "../../ball";
 import { DogBehaviour } from "../behaviours/dog-behaviour";
-import { StandUpBehaviour } from "../behaviours/stand-up-behaviour";
+import { SitDownBehaviour } from "../behaviours/sit-down-behaviour";
 import { WaitSitBehaviour } from "../behaviours/wait-sit-behaviour";
-import { WaitStandBehaviour } from "../behaviours/wait-stand-behaviour";
 import { DogGoal, DogGoalName } from "./dog-goal";
 
+// Dog should sit down and perform 1-shot animations while sitting
 export class WaitGoal extends DogGoal {
   name: DogGoalName = "wait";
   behaviours: DogBehaviour[] = [];
   currentBehaviour?: DogBehaviour;
 
+  getNextGoalName(): DogGoalName | undefined {
+    // Fetch if the ball is thrown
+    if (this.dog.ball.state === BallState.Thrown) return "fetch";
+
+    // Follow if the player moves away
+    if (this.shouldFollow()) return "follow";
+
+    // Otherwise, there's no next goal for now
+    return undefined;
+  }
+
   canFinish(): boolean {
-    // Only need to check current behaviour, don't need to finish multiple
-    return this.currentBehaviour?.canFinish() ?? true;
+    // So long as the dog is sitting this can finish
+    return this.dog.animator.isCurrentAnimation(AnimationAsset.Sitting);
   }
 
   setupBehaviours() {
-    if (this.dog.ball.state === BallState.AtRest) {
-      this.currentBehaviour = new WaitSitBehaviour(this.dog);
+    // Sit down first if not already sitting
+    if (!this.dog.animator.isCurrentAnimation(AnimationAsset.Sitting)) {
+      this.behaviours.push(new SitDownBehaviour(this.dog));
     }
 
-    if (this.dog.ball.state === BallState.WithPlayer) {
-      this.currentBehaviour = new WaitStandBehaviour(this.dog);
-    }
+    // Then wait
+    this.behaviours.push(new WaitSitBehaviour(this.dog));
 
-    console.log("starting wait goal");
+    console.log("starting wait goal", this.behaviours);
   }
 
-  update(dt: number): void {
-    // todo If the behaviour would change (sit to stand) then what?
-    this.currentBehaviour?.update(dt);
-
-    // In case player picks up ball while sitting
-    if (
-      this.currentBehaviour instanceof WaitSitBehaviour &&
-      this.dog.ball.state === BallState.WithPlayer
-    ) {
-      // Wait until it can finish
-      if (this.currentBehaviour?.canFinish()) {
-        this.behaviours = [
-          new StandUpBehaviour(this.dog),
-          new WaitStandBehaviour(this.dog),
-        ];
-        this.currentBehaviour = this.behaviours.shift();
-      }
-    } else if (this.currentBehaviour?.canFinish()) {
-      this.currentBehaviour = this.behaviours.shift();
-    }
+  private shouldFollow() {
+    return this.dog.position.distanceTo(this.dog.camera.position) > 6;
   }
 }
