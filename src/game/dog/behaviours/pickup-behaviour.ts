@@ -22,10 +22,6 @@ export class PickupBehaviour extends DogBehaviour {
     return this.dog.ball.state === BallState.WithDog;
   }
 
-  update(dt: number): void {
-    // Do nothing!
-  }
-
   private pickupBall() {
     // Stop ball physics, parent to dog
     const ball = this.dog.ball;

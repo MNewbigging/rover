@@ -13,7 +13,7 @@ export class MoveToPlayerBehaviour extends DogBehaviour {
     return this.dog.position.distanceTo(this.dog.camera.position) < 3;
   }
 
-  update(dt: number): void {
+  override update(dt: number): void {
     this.moveTowardsPosition(this.dog.camera.position, dt);
   }
 

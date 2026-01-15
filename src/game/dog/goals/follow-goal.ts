@@ -1,3 +1,4 @@
+import { AnimationAsset } from "../../asset-manager";
 import { BallState } from "../../ball";
 import { DogBehaviour } from "../behaviours/dog-behaviour";
 import { DropBehaviour } from "../behaviours/drop-behaviour";
@@ -25,8 +26,19 @@ export class FollowGoal extends DogGoal {
   }
 
   canFinish(): boolean {
-    // This can be interrupted by a throw
-    return this.dog.ball.state === BallState.Thrown;
+    // Either:
+
+    // Player has ball, dog starts following and then the player throws ball before dog gets close
+    // Dog would be standing so can move into a fetch.
+    if (this.dog.ball.state === BallState.Thrown) return true;
+
+    // Player has ball, dog follows and gets close and should wait. Can move into wait.
+    if (this.dog.ball.state === BallState.WithPlayer) return true;
+
+    // 2 - Dog has ball, dog drops in front of player. Woudl be interrupted by a wait.
+    // Ball would have been dropped, can wait so long as not in sit transition
+
+    return this.dog.animator.isCurrentAnimation(AnimationAsset.Sitting);
   }
 
   setupBehaviours(): void {

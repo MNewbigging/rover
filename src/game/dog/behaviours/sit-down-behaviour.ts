@@ -10,8 +10,4 @@ export class SitDownBehaviour extends DogBehaviour {
   canFinish(): boolean {
     return this.dog.animator.isCurrentAnimation(AnimationAsset.Sitting);
   }
-
-  update(dt: number): void {
-    //
-  }
 }

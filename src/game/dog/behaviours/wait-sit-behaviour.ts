@@ -11,8 +11,4 @@ export class WaitSitBehaviour extends DogBehaviour {
     // todo so long as not in 1-shot anim
     return false; // if true this behaviour will end
   }
-
-  update(dt: number): void {
-    // todo randomly play 1-shot sitting anims
-  }
 }

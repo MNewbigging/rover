@@ -19,10 +19,6 @@ export class DropBehaviour extends DogBehaviour {
     );
   }
 
-  update(dt: number): void {
-    // Nothing to do here
-  }
-
   private dropBall() {
     // Unparent ball from dog, restart physics
     const ball = this.dog.ball;

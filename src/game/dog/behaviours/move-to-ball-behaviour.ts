@@ -16,7 +16,7 @@ export class MoveToBallBehaviour extends DogBehaviour {
     );
   }
 
-  update(dt: number): void {
+  override update(dt: number): void {
     // todo walk when close to ball
 
     this.moveTowardsPosition(this.dog.ball.renderComponent.position, dt);

@@ -11,8 +11,4 @@ export class StandUpBehaviour extends DogBehaviour {
   canFinish(): boolean {
     return this.dog.animator.isCurrentAnimation(AnimationAsset.Standing);
   }
-
-  update(dt: number): void {
-    //
-  }
 }
