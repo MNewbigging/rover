@@ -1,4 +1,5 @@
 import { AnimationAsset } from "../../asset-manager";
+import { BallState } from "../../ball";
 import { DogBehaviour } from "./dog-behaviour";
 
 export class WaitSitBehaviour extends DogBehaviour {
@@ -7,7 +8,13 @@ export class WaitSitBehaviour extends DogBehaviour {
   }
 
   canFinish(): boolean {
-    // todo so long as not in 1-shot anim
+    // We want this behaviour to last forever until the goal is interrupted
     return false; // if true this behaviour will end
+  }
+
+  update(dt: number) {
+    if (this.dog.ball.state === BallState.WithPlayer) {
+      this.dog.animator.play(AnimationAsset.TailWagSit);
+    }
   }
 }

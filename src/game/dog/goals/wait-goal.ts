@@ -23,8 +23,8 @@ export class WaitGoal extends DogGoal {
   }
 
   canFinish(): boolean {
-    // So long as the dog is sitting this can finish
-    return this.dog.animator.isCurrentAnimation(AnimationAsset.Sitting);
+    // Can be interrupted at any time
+    return true;
   }
 
   setupBehaviours() {
