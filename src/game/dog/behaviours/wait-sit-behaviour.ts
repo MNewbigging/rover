@@ -20,7 +20,12 @@ export class WaitSitBehaviour extends DogBehaviour {
     } else {
       this.idleAnimTimer -= dt;
       if (this.idleAnimTimer <= 0) {
-        this.dog.animator.play(AnimationAsset.ScratchSit);
+        // Play a random idle anim
+        this.dog.animator.play(
+          Math.random() < 0.5
+            ? AnimationAsset.ScratchSit
+            : AnimationAsset.BegSit
+        );
         this.idleAnimTimer = 3 + Math.random() * 7;
       }
     }

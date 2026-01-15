@@ -15,6 +15,7 @@ export enum AnimationAsset {
   Walking = "_POLYGON_Dog_Locomotion_Walking.fbx",
   TailWagSit = "_POLYGON_Dog_Action_Sitting_TailWag.fbx",
   ScratchSit = "_POLYGON_Dog_Action_Sitting_Scratch.fbx",
+  BegSit = "_POLYGON_Dog_Action_Sitting_Beg.fbx",
 }
 
 export enum ModelAsset {

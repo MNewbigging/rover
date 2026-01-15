@@ -123,6 +123,10 @@ export class DogAnimator {
       loopOnce: true,
       clampWhenFinished: true,
     });
+    this.createActionFor(AnimationAsset.BegSit, {
+      loopOnce: true,
+      clampWhenFinished: true,
+    });
   }
 
   private createActionFor(
