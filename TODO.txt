@@ -1,13 +1,15 @@
 Todo:
 - pause/resumme on lose focus/lose controls lock
 - dog bend/turning anims
+- force modifer on throw
+
+Screens:
+- Loading screen with black background and spinner
+- Menu screen transparent-ish ui, can see game scene behind (with dog to right)
+- Menu shows controls and start button
+- Ui disappears and already in the game 
 
 
-
-Misc tidy:
-- would Goal-based AI work better for the dog?
-- dog-builder class to handle the high level setup of the model (see functions in Dog.ts outside Dog class)
-- use simpler event listener
 
 
 

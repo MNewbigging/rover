@@ -3,7 +3,6 @@ import * as THREE from "three";
 import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls";
 import { RenderPipeline } from "./render-pipeline";
 import { AssetManager } from "./asset-manager";
-import { Dog } from "./dog";
 import { KeyboardListener } from "../listeners/keyboard-listener";
 import { Ball, BallState } from "./ball";
 import { Ground } from "./ground";
@@ -17,13 +16,14 @@ export class GameState {
   private controls: PointerLockControls;
   private keyboardListener = new KeyboardListener();
   private raycaster = new THREE.Raycaster();
+  private physicsWorld = new CANNON.World();
+  private updateId = 0;
+  private paused = false;
 
   private moveSpeed = 2;
   private dog: Dog;
   private ground: Ground;
   private ball: Ball;
-
-  private physicsWorld = new CANNON.World();
 
   private reused = {
     ndc: new THREE.Vector2(),
@@ -43,6 +43,8 @@ export class GameState {
     );
     this.scene.add(this.controls.getObject());
     this.controls.lock();
+    this.controls.addEventListener("unlock", this.pause);
+    document.addEventListener("pointerlockerror", this.onPointerLockError);
 
     // Ground
     this.ground = new Ground(this.physicsWorld);
@@ -51,7 +53,7 @@ export class GameState {
     // Ball
     this.ball = new Ball(this.physicsWorld, assetManager);
     this.scene.add(this.ball.renderComponent);
-    this.ball.position = { x: 0, y: 1, z: 0.3 };
+    this.ball.position = { x: 0, y: 1, z: 0.6 };
 
     // Doggo
     this.dog = new Dog(this.ball, this.camera, this.scene, assetManager);
@@ -87,8 +89,24 @@ export class GameState {
     this.scene.add(directLight);
   }
 
+  pause = () => {
+    cancelAnimationFrame(this.updateId);
+    this.paused = true;
+  };
+
+  resume = () => {
+    this.paused = false;
+    this.controls.lock();
+    this.update();
+  };
+
+  private onPointerLockError = () => {
+    this.pause();
+    setTimeout(() => this.resume(), 850);
+  };
+
   private update = () => {
-    requestAnimationFrame(this.update);
+    this.updateId = requestAnimationFrame(this.update);
 
     const dt = this.clock.getDelta();
 
@@ -145,6 +163,11 @@ export class GameState {
   }
 
   private onClick = (e: MouseEvent) => {
+    if (this.paused) {
+      this.resume();
+      return;
+    }
+
     if (!isLeftClick(e)) return;
     if (this.ball.state === BallState.WithPlayer) return;
     if (!this.isLookingAtBall()) return;
