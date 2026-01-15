@@ -1,4 +1,4 @@
-import { NewDog } from "../new-dog";
+import { Dog } from "../dog";
 
 export enum DogBehaviourName {
   WaitSit,
@@ -12,7 +12,7 @@ export enum DogBehaviourName {
 export abstract class DogBehaviour {
   subBehaviours: DogBehaviourName[] = [];
 
-  constructor(protected dog: NewDog) {}
+  constructor(protected dog: Dog) {}
 
   // Optional
   async onStart() {}

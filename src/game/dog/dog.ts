@@ -9,7 +9,7 @@ import { ReturnGoal } from "./goals/return-goal";
 import { FetchGoal } from "./goals/fetch-goal";
 import { FollowGoal } from "./goals/follow-goal";
 
-export class NewDog extends THREE.Object3D {
+export class Dog extends THREE.Object3D {
   animator: DogAnimator;
   jawBone?: THREE.Object3D;
   readonly ballHoldPosition = new THREE.Vector3(0, -5, 15);

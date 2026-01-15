@@ -2,12 +2,12 @@ import * as THREE from "three";
 import { DogBehaviour } from "./dog-behaviour";
 import { AnimationAsset } from "../../asset-manager";
 import { BallState } from "../../ball";
-import { NewDog } from "../new-dog";
+import { Dog } from "../dog";
 
 export class MoveToPlayerBehaviour extends DogBehaviour {
   constructor(
     private moveAnim: AnimationAsset.Running | AnimationAsset.Walking,
-    dog: NewDog
+    dog: Dog
   ) {
     super(dog);
   }

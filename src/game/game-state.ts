@@ -7,7 +7,7 @@ import { Dog } from "./dog";
 import { KeyboardListener } from "../listeners/keyboard-listener";
 import { Ball, BallState } from "./ball";
 import { Ground } from "./ground";
-import { NewDog } from "./dog/new-dog";
+import { Dog } from "./dog/dog";
 
 export class GameState {
   private renderPipeline: RenderPipeline;
@@ -19,7 +19,7 @@ export class GameState {
   private raycaster = new THREE.Raycaster();
 
   private moveSpeed = 2;
-  private dog: NewDog;
+  private dog: Dog;
   private ground: Ground;
   private ball: Ball;
 
@@ -54,7 +54,7 @@ export class GameState {
     this.ball.position = { x: 0, y: 1, z: 0.3 };
 
     // Doggo
-    this.dog = new NewDog(this.ball, this.camera, this.scene, assetManager);
+    this.dog = new Dog(this.ball, this.camera, this.scene, assetManager);
     this.scene.add(this.dog);
 
     // Physics

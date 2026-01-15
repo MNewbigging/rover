@@ -1,5 +1,5 @@
 import { DogBehaviour } from "../behaviours/dog-behaviour";
-import { NewDog } from "../new-dog";
+import { Dog } from "../dog";
 
 export type DogGoalName = "wait" | "follow" | "fetch" | "return";
 
@@ -8,7 +8,7 @@ export abstract class DogGoal {
   abstract behaviours: DogBehaviour[];
   abstract currentBehaviour?: DogBehaviour;
 
-  constructor(public dog: NewDog) {}
+  constructor(public dog: Dog) {}
 
   // It's up to each goal to queue the correct behaviours at the start
   abstract setupBehaviours(): void;
